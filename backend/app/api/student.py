@@ -35,13 +35,12 @@ def student_dashboard():
         
         return success_response({
             "student": student.name,
-            "statistics": {
-                "total_drives": total_drives,
-                "applied": applied_count,
-                "shortlisted": shortlisted,
-                "selected": selected,
-                "rejected": rejected
-            }
+            "total_drives": total_drives,
+            "applied": applied_count,
+            "shortlisted": shortlisted,
+            "selected": selected,
+            "rejected": rejected
+            
         })
         
     except Exception as e:
@@ -90,7 +89,6 @@ def student_profile():
 @student_bp.route('/drives', methods=['GET'])
 @jwt_required()
 def get_drives():
-    """Get available placement drives for student"""
     try:
         student = get_current_student()
         
@@ -100,7 +98,6 @@ def get_drives():
         # Check eligibility and application status for each drive
         drive_list = []
         for drive in drives:
-            # Check if student already applied
             has_applied = Application.query.filter_by(
                 student_id=student.id,
                 drive_id=drive.id
@@ -108,16 +105,18 @@ def get_drives():
             
             # Check eligibility (simplified - implement your logic)
             is_eligible = True  # Implement eligibility check based on CGPA, branch, etc.
-            
-            drive_dict = {
-                'title':drive.job_title,
-                'description':drive.description,
-                'eligibility':drive.eligibility,
-                'deadline':drive.deadline
-            }
-            drive_dict['has_applied'] = has_applied
-            drive_dict['is_eligible'] = is_eligible
-            drive_list.append(drive_dict)
+            if drive.status == 'APPROVED':
+                drive_dict = {
+                    'id':drive.id,
+                    'title':drive.job_title,
+                    'company_name':Company.query.filter_by(id = drive.company_id).first().name,
+                    'description':drive.description,
+                    'eligibility':drive.eligibility,
+                    'deadline':drive.deadline
+                }
+                drive_dict['has_applied'] = has_applied
+                drive_dict['is_eligible'] = is_eligible
+                drive_list.append(drive_dict)
         
         return success_response({
             "drives": drive_list,
@@ -150,9 +149,7 @@ def apply_for_drive(drive_id):
         
         # Check eligibility (implement your logic)
         # For now, simple eligibility check
-        if drive.eligibility:
-            # Parse eligibility criteria and check
-            pass
+       
         
         # Create application
         application = Application(
@@ -164,7 +161,7 @@ def apply_for_drive(drive_id):
         db.session.add(application)
         db.session.commit()
         
-        return success_response(application.to_dict(), "Application submitted successfully", status_code=201)
+        return success_response("Application submitted successfully", status_code=201)
         
     except Exception as e:
         db.session.rollback()
@@ -183,14 +180,12 @@ def get_applications():
         for app in applications:
             drive = PlacementDrives.query.get(app.drive_id)
             app_dict ={
+                'id':app.id,
                 'student_id':app.student_id,
                 'status':app.status,
-                drive:{
-                    'company_id':drive.company_id,
-                    'job_title':drive.job_title,
-                    'eligibility':drive.eligibility,
-                    'description':drive.description
-                }
+                'company_id':drive.company_id,
+                'job_title':drive.job_title,
+                'time':app.time
                 }
             # app_dict['drive'] = drive.to_dict() if drive else None
             app_list.append(app_dict)

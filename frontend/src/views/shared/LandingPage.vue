@@ -33,7 +33,7 @@
     </div>
     <div class="content">
         <RouterLink to="/register">
-            <Button>Register</Button>
+            <button>Register</button>
         </RouterLink>
         <RouterLink to="/login"><button>
                 Login

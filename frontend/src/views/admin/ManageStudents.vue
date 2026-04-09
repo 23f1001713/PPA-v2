@@ -114,7 +114,7 @@
         <div class="search">
             <input type="text" placeholder="Search companies..." name="search">
         
-        <input style="background-color: blue; color: white;" class="btn btn-outline-success" type="submit" value="Search">
+        <input  style="background-color: blue; color: white;" class="btn btn-outline-success" type="submit" value="Search">
         </div>
     </form>
 
@@ -200,11 +200,6 @@
                         </a>
                         <a href="#">
                             <button class="btn-sm btn-view">
-                                <i class="bi bi-eye"></i> View Details
-                            </button>
-                        </a>
-                        <a href="#">
-                            <button class="btn-sm btn-view">
                                 <i class="bi bi-eye"></i> View History
                             </button>
                         </a>
@@ -224,6 +219,9 @@
 <script setup>
 import { ref,onMounted } from 'vue';
 import { adminAPI } from '@/services/api';
+import { useRouter } from 'vue-router';
+import { defineStore } from 'pinia';
+
 const stats = ref({
     s_a:0,s_b:0,t_s:0
 })
@@ -278,6 +276,24 @@ const handleToggleStatus = async (student) => {
         alert("Error updating status");
     }
 };
+
+// export const useSearchStore = defineStore('search', {
+//   state: () => ({
+//     results: [],
+//     isLoading: false
+//   }),
+//   actions: {
+//     async performSearch(text) {
+//       this.isLoading = true;
+//       try {
+//         const response = await adminAPI.search(text);
+//         this.results = response.data; // Store response
+//       } finally {
+//         this.isLoading = false;
+//       }
+//     }
+//   }
+// });
 
 onMounted(() =>{
     fetchAStudent();

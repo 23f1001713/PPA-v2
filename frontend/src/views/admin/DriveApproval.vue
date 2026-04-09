@@ -212,43 +212,45 @@
       <h1>Drives Management </h1>
     </div>
 
-    <div class="stats ">
+    <div class="stats" v-if="stats">
     <div class="stat ">
-        <div class="stat-number">10</div>
+        <div class="stat-number">{{ stats.total }}</div>
         <div class="stat-label">Total Drives</div>
     </div>
     <div class="stat">
-        <div class="stat-number">10</div>
+        <div class="stat-number">{{ stats.t_a }}</div>
         <div class="stat-label">Total Approved</div>
     </div>
     <div class="stat  ">
-        <div class="stat-number">10</div>
+        <div class="stat-number">{{ stats.t_p }}</div>
         <div class="stat-label">Pending</div>
     </div>
 <div class="stat  ">
-        <div style="color: red;" class="stat-number">10</div>
+        <div style="color: red;" class="stat-number">{{ stats.t_c }}</div>
         <div class="stat-label">Closed</div>
     </div>
 </div>
+<div class="stats" v-else>Loading Data ....</div>
 
 <div class="drives-container">
    
-    <div class="drive-card pending">
+    <div v-for="drive in drives" :key="drive.id" class="drive-card pending">
         <div class="drive-header">
             <div style="display: flex; align-items: start; flex: 1;">
 
                 <div class="drive-title-section">
-                    <div class="drive-title">this is Title</div>
+                    <div class="drive-title">{{ drive.id }}:{{drive.job_title}}</div>
+                    <h4>{{ drive.company_name }}</h4>
 
                 </div>
             </div>
             <div class="status-badges">
               
-                <span class="badge badge-approved">APPROVED</span>
+                <span v-if="drive.status == 'APPROVED'" class="badge badge-approved">APPROVED</span>
                 
-                <span class="badge badge-pending">PENDING</span>
+                <span v-else-if="drive.status == 'PENDING'" class="badge badge-pending">PENDING</span>
                 
-                <span class="badge badge-closed">CLOSED</span>
+                <span v-else class="badge badge-closed">CLOSED</span>
                 
             </div>
         </div>
@@ -256,11 +258,13 @@
         <div class="drive-meta">
 
             <div class="meta-item">
-                <p>Description : description </p>
+                <p>Description : {{ drive.eligibility }} </p>
+
+                <p>Description : {{ drive.description }} </p>
             </div>
             <div class="meta-item">
                 <i class="bi bi-calendar-x"></i>
-                <span>Deadline: deadline</span>
+                <span>Deadline: {{drive.deadline}}</span>
             </div>
 
 
@@ -269,38 +273,27 @@
 
 
         <div class="action-buttons">
-            <a href="/">
+           
                 <button class="btn-action btn-view">
                     <i class="bi bi-eye"></i> View Details
                 </button>
-            </a>
-            <a href="/">
-             
-                <button class="btn-action btn-approve">
+            
+            
+                <button @click="handleToggleStatus(drive)" v-if="drive.status == 'PENDING'" class="btn-action btn-approve">
                     <i class="bi bi-check-circle"></i> Approve
                 </button>
                 
-                <button class="btn-action btn-reject">
+                <button @click="handleToggleStatus(drive)" v-else-if="drive.status=='APPROVED'" class="btn-action btn-reject">
                     <i class="bi bi-x-circle"></i> Pending
-                </button>
-                
-            </a>
-            <a href="/">
-                <button class="btn-action btn-edit">
-                    <i class="bi bi-pencil"></i>
-                    Edit
-                </button>
-            </a>
-            <a href="/">
-               
-                <button class="btn-action btn-approve">
+                </button>       
+                <button @click="handleToggleClosed(drive)" v-if="drive.status == 'CLOSED'" class="btn-action btn-approve">
                     <i class="bi bi-check-circle"></i> Unclose
                 </button>
                 
-                <button class="btn-action btn-reject">
+                <button @click="handleToggleClosed(drive)" v-else-if="drive.status!='CLOSED'" class="btn-action btn-reject">
                     <i class="bi bi-x-circle"></i> Close
                 </button>
-                </a>
+                
               
         </div>
     </div>
@@ -313,15 +306,31 @@
 </template>
 
 <script setup>
+import { ref,onMounted } from 'vue';
 import { adminAPI } from '@/services/api';
+
+const stats = ref({
+    t_p:0,t_a:0,t_c:0,total:0
+})
+
+const drives = ref([])
 
 const fetchADrives = async () => {
     try {
         const response = await adminAPI.getDrives();
         
         // Success: Handle your statistics data
-        const stats = response.data;
-        console.log("Dashboard Stats:", stats);
+        const serverData = response.data.data;
+
+        stats.value = {
+            t_p:serverData.t_p,
+            t_a:serverData.t_a,
+            t_c:serverData.t_c,
+            total:serverData.total
+        }
+
+        drives.value = serverData.drives
+        console.log("Dashboard Stats:", serverData);
         
         
     } catch (error) {
@@ -341,6 +350,39 @@ const fetchADrives = async () => {
     }
 };
 
-// Call the function when the page/component loads
-fetchADrives();
+const handleToggleStatus = async (student) => {
+    const action = student.status === 'APPROVED' ? 'block' : 'unblock';
+    
+    // Confirm with user
+    if (!confirm(`Are you sure you want to ${action} this drive?`)) return;
+
+    try {
+        const response = await adminAPI.approveDrive(student.id);
+        fetchADrives();
+        console.log(response.data)
+    } catch (error) {
+        console.error("Failed to change status:", error);
+        alert("Error updating status");
+    }
+}
+
+const handleToggleClosed = async (student) => {
+    const action = student.status === 'CLOSED' ? 'unclose' : 'close';
+    
+    // Confirm with user
+    if (!confirm(`Are you sure you want to ${action} this drive?`)) return;
+
+    try {
+        const response = await adminAPI.closeDrive(student.id);
+        fetchADrives();
+        console.log(response.data)
+    } catch (error) {
+        console.error("Failed to change status:", error);
+        alert("Error updating status");
+    }
+}
+
+onMounted(() =>{
+    fetchADrives();
+})
 </script>

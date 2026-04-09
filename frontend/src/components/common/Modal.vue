@@ -85,8 +85,7 @@
                         Applications</RouterLink></li>
                 <li><RouterLink to="/company/drives/create" class="s_a">
                         Create Drive</RouterLink></li>
-                <li><RouterLink to="/company/profile" class="s_p"> Profile</RouterLink>
-                </li>
+                
                 <li><button @click="handleLogout">Logout</button>
                 </li>
             </ul>

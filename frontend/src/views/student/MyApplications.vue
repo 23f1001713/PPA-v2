@@ -84,31 +84,30 @@
 
 <template>
   <div class="main-container">
-    <div class="app-con">
+    <div class="app-con" v-if="apple">
 
-        <div class="app-card">
+        <div v-for="a in apple" :key="a.id" class="app-card">
             <div class="app-card-header">
                 <div class="app-i">
-                    <div class="app-id">#1</div>
-                    <div class="app-t"> Job Title</div>
+                    <div class="app-id">{{ a.id }}</div>
+                    <div class="app-t"> {{ a.job_title }}</div>
 
                 </div>
               
-                <span class="status-b status-selected">Selected</span>
+                <span v-if="a.status == 'SELECTED'" class="status-b status-selected">Selected</span>
                
-                <span class="status-b status-shortlisted">Shortlisted</span>
+                <span v-else-if="a.status=='SHORTLISTED'" class="status-b status-shortlisted">Shortlisted</span>
                 
-                <span class="status-b status-rejected">Not Selected</span>
+                <span v-else-if="a.status=='REJECTED'" class="status-b status-rejected">Not Selected</span>
                 
-                <span class="status-b status-applied">In Progress</span>
+                <span v-else class="status-b status-applied">In Progress</span>
                 
             </div>
 
             <div class="app-m">
                 <div class="meta-b">
-                    <div class="meta-l">Applied On</div>
-                    v <i class="bi bi-calendar3"></i>
-                    Date
+                    <div class="meta-l">{{ a.time }}</div>
+                     <i class="bi bi-calendar3"></i>
                 </div>
             </div>
 
@@ -117,18 +116,22 @@
 
 
     </div>
+    <div class="app-con" v-else><h1>You have not Applied to any drive</h1></div>
 
   </div>
 </template>
 
 <script setup>
-import { onMounted } from 'vue';
+import { onMounted ,ref} from 'vue';
 import { studentAPI } from '@/services/api';
 
+const apple = ref([])
 const fetcAppl  = async ()=>{
     try{
         const response = await studentAPI.getApplications();
-        console.log(response.data)
+        const serverData = response.data.data;
+        apple.value = serverData
+        console.log(serverData)
     }catch(error){
         console.log(error.message)
     }

@@ -156,11 +156,12 @@ def blacklist_student(student_id):
         db.session.rollback()
         return error_response(str(e), status_code=500)
 
-@admin_bp.route('/drives', methods=['GET'])
 
+
+
+@admin_bp.route('/drives', methods=['GET'])
+@jwt_required()
 def get_drives():
-    """Get all drives with filters"""
-    
     d = Drive.query.all()
     t_p = len(Drive.query.filter_by(status = 'PENDING').all())
     t_a = len(Drive.query.filter_by(status = 'APPROVED').all())
@@ -172,7 +173,8 @@ def get_drives():
         'eligibility':s.eligibility,
         'description':s.description,
         "status": s.status,
-        'deadline':s.deadline
+        'deadline':s.deadline,
+        'company_name':Company.query.filter_by(id = s.company_id).first().name
     } for s in d]
 
 
@@ -187,41 +189,32 @@ def get_drives():
     
 
 @admin_bp.route('/drives/<int:drive_id>/approve', methods=['PUT'])
-
+@jwt_required()
 def approve_drive(drive_id):
-    """Approve or reject placement drive"""
     try:
-        data = request.get_json()
-        action = data.get('action')  # 'approve' or 'reject'
-        
         drive = Drive.query.get_or_404(drive_id)
-        
-        if action == 'approve':
-            drive.status = 'APPROVED'
-            message = "Drive approved successfully"
-        elif action == 'reject':
-            drive.status = 'REJECTED'
-            message = "Drive rejected"
+        if drive.status == 'APPROVED':
+            drive.status = 'PENDING'
         else:
-            return error_response("Invalid action. Use 'approve' or 'reject'", status_code=400)
-        
+            drive.status = 'APPROVED'
         db.session.commit()
-        return success_response(drive.to_dict(), message)
+        return success_response( f"Drive sucessfully")
         
     except Exception as e:
         db.session.rollback()
         return error_response(str(e), status_code=500)
 
 @admin_bp.route('/drives/<int:drive_id>/close', methods=['PUT'])
-
+@jwt_required()
 def close_drive(drive_id):
-    """Close a placement drive"""
     try:
         drive = Drive.query.get_or_404(drive_id)
-        drive.status = 'CLOSED'
+        if drive.status == 'CLOSED':
+            drive.status = 'APPROVED'
+        else:
+            drive.status = 'CLOSED'
         db.session.commit()
-        
-        return success_response(drive.to_dict(), "Drive closed successfully")
+        return success_response( f"Drive sucessfully")
         
     except Exception as e:
         db.session.rollback()
@@ -233,14 +226,20 @@ def get_applications():
     """Get all applications with statistics"""
     try:
         applications = Application.query.all()
-        
+        apple = [{
+            'student_id':app.student_id,
+            'student_name':Student.query.filter_by(id = app.student_id).first().name,
+            'drive_id':app.drive_id,
+            'drive_name':Drive.query.filter_by(id = app.drive_id).first().name,
+            'status':app.status
+        }for app in applications]
         stats = {
             "total": len(applications),
             "pending": Application.query.filter_by(status='PENDING').count(),
             "shortlisted": Application.query.filter_by(status='SHORTLISTED').count(),
             "selected": Application.query.filter_by(status='SELECTED').count(),
             "rejected": Application.query.filter_by(status='REJECTED').count(),
-            "applications": [app.to_dict() for app in applications]
+            "applications": apple
         }
         
         return success_response(

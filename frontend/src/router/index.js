@@ -14,8 +14,6 @@ import CompanyApproval from '@/views/admin/CompanyApproval.vue'
 import DriveApproval from '@/views/admin/DriveApproval.vue'
 import ManageStudents from '@/views/admin/ManageStudents.vue'
 import ManageCompanies from '@/views/admin/ManageCompanies.vue'
-import ReportsDashboard from '@/views/admin/ReportsDashboard.vue'
-import MonthlyReport from '@/views/admin/MonthlyReport.vue'
 
 // Student Views
 import StudentDashboard from '@/views/student/StudentDashboard.vue'
@@ -33,6 +31,7 @@ import ManageDrives from '@/views/company/ManageDrives.vue'
 import ViewApplicants from '@/views/company/ViewApplicants.vue'
 import ShortlistStudents from '@/views/company/ShortlistStudents.vue'
 import InterviewSchedule from '@/views/company/InterviewSchedule.vue'
+import EditDrive from '@/views/company/editDrive.vue'
 
 // Shared Views
 
@@ -108,18 +107,7 @@ const router = createRouter({
         component: ManageCompanies,
         meta: { role: 'ADMIN', showSidebar: true,showFooter:false , showNavbar:false , showModal:false }
       },
-      {
-        path: '/admin/reports',
-        name: 'ReportsDashboard',
-        component: ReportsDashboard,
-       meta: { role: 'ADMIN', showSidebar: true ,showFooter: false , showNavbar:false , showModal:false}
-      },
-      {
-        path: '/admin/reports/monthly',
-        name: 'MonthlyReport',
-        component: MonthlyReport,
-        meta: { role: 'ADMIN', showSidebar: true }
-      },
+      
       
       // Student Routes
       {
@@ -176,6 +164,12 @@ const router = createRouter({
         path: '/company/drives/create',
         name: 'CreateDrive',
         component: CreateDrive,
+       meta: { role: 'COMPANY', showSidebar: false ,showModal:true , showNavbar:false , showFooter:false }
+      },
+      {
+        path: '/company/drives/edit',
+        name: 'EditDrive',
+        component: EditDrive,
        meta: { role: 'COMPANY', showSidebar: false ,showModal:true , showNavbar:false , showFooter:false }
       },
       {

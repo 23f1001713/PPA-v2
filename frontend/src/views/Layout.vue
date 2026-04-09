@@ -9,20 +9,18 @@
         <router-view />
       
     </div>
-    <Footer v-if="showFooter" />
   </div>
 </template>
 
 <script>
 import Navbar from '@/components/common/Navbar.vue'
 import Sidebar from '@/components/common/Sidebar.vue'
-import Footer from '@/components/common/Footer.vue'
 import Modal from '@/components/common/Modal.vue'
 
 
 export default {
   name: 'Layout',
-  components: { Navbar, Sidebar, Footer,Modal },
+  components: { Navbar, Sidebar,Modal },
   computed: {
     showNavbar() {
       return this.$route.meta.showNavbar !== false
@@ -34,9 +32,6 @@ export default {
       // const role = localStorage.getItem('userRole')
       return this.$route.meta.showSidebar !== false 
       // && role && role !== 'guest'
-    },
-    showFooter() {
-      return this.$route.meta.showFooter !== false
     }
   }
 }

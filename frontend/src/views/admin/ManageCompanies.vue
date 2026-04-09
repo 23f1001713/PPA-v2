@@ -195,11 +195,7 @@
                                 <i class="bi bi-eye"></i> View Details
                             </button>
                         </a>
-                        <a href="#">
-                            <button class="btn-sm btn-view">
-                                <i class="bi bi-eye"></i> View History
-                            </button>
-                        </a>
+                        
 
                     </div>
                 </td>

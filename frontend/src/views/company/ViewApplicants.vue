@@ -206,31 +206,31 @@
 
 
 
-            <div class="app-card">
+            <div v-for="a in apple" :key="a.application_id" class="app-card">
                 <div class="app-h">
 
                     <div class="app-i">
-                        <div class="app-n">Name </div>
-                        <div class="app-d">Branch • CGPA </div>
+                        <div class="app-n">{{ a.student.name }} </div>
+                        <div class="app-d">{{a.student.branch}} • {{a.student.cgpa}} </div>
                     </div>
 
                    
-                    <button class="status-applied">
+                    <button v-if="a.status == 'APPLIED'" class="status-applied">
 
                         Status : Pending
                     </button>
                    
-                    <button class="status-shortlisted">
+                    <button v-else-if="a.status=='SHORTLISTED'" class="status-shortlisted">
 
                         Status : Shortlisted
                     </button>
                    
-                    <button class="status-rejected">
+                    <button v-else-if="a.status=='REJECTED'" class="status-rejected">
 
                         Status : Rejected
                     </button>
                   
-                    <button class="status-selected">
+                    <button v-else class="status-selected">
 
                         Status : Selected
                     </button>
@@ -240,7 +240,7 @@
 
                     <div class="app-m-i">
                         <i class="bi bi-briefcase"></i>
-                        <span><span>Job Title </span></span>
+                        <span><span>{{ a.drive.title }} </span></span>
                     </div>
                     <div class="app-m-i">
                         <i class="bi bi-star-fill"></i>
@@ -283,16 +283,23 @@
 </template>
 
 <script setup>
+
+import { ref,onMounted } from 'vue';
 import { companyAPI } from '@/services/api';
+
+const apple = ref([])
 
 const fetchApp =async()=>{
     try{
         const response = await companyAPI.getApplications();
-        console.log(response.data.data)
+        const serverData = response.data.data;
+        apple.value = serverData.applications;
     }catch(error) {
         console.log(error.message)
     }
 }
-fetchApp();
+onMounted(() =>{
+    fetchApp();
+})
 
 </script>

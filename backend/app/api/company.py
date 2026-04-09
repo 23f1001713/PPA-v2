@@ -79,40 +79,7 @@ def company_dashboard():
 
 
 
-@company_bp.route('/profile', methods=['GET', 'PUT'])
 
-def company_profile():
-    """Get or update company profile"""
-    try:
-        company = get_current_company()
-        if not company:
-            return error_response("Company profile not found", status_code=404)
-        
-        if request.method == 'GET':
-            user = User.query.get(company.user_id)
-            return success_response({
-                "company": company.to_dict(),
-                "user": {
-                    "id": user.id,
-                    "username": user.username,
-                    "email": user.email
-                }
-            })
-        
-        # PUT request - update profile
-        data = request.get_json()
-        
-        if 'hr_contact' in data:
-            company.hr_contact = data['hr_contact']
-        if 'website' in data:
-            company.website = data['website']
-        
-        db.session.commit()
-        return success_response(company.to_dict(), "Profile updated successfully")
-        
-    except Exception as e:
-        db.session.rollback()
-        return error_response(str(e), status_code=500)
 
 @company_bp.route('/drives', methods=['GET', 'POST'])
 @jwt_required()
@@ -128,7 +95,8 @@ def manage_drives():
                 "id": d.id,
                 "title": d.job_title,
                 "date": d.deadline if d.deadline else None,
-                "status": d.status
+                "status": d.status,
+                'description':d.description
             } for d in drives]
 
             return success_response({
@@ -159,6 +127,34 @@ def manage_drives():
     except Exception as e:
         db.session.rollback()
         return error_response(str(e), status_code=500)
+    
+
+@company_bp.route('/drives/<int:drive_id>/close', methods=['PUT'])
+@jwt_required()
+def close_drive(drive_id):
+    try:
+        # Use get_or_404 to handle missing IDs automatically
+        drive = PlacementDrives.query.get_or_404(drive_id)
+        
+        # IMPROVED LOGIC: Explicitly toggle based on 'CLOSED'
+        if drive.status == 'CLOSED':
+            drive.status = 'APPROVED' # Or 'PENDING', depending on your flow
+        else:
+            drive.status = 'CLOSED'
+            
+        db.session.commit()
+        
+        # It's best practice to return the new status so the frontend knows what happened
+        return success_response({
+            "message": f"Drive is now {drive.status}",
+            "new_status": drive.status
+        })
+        
+    except Exception as e:
+        db.session.rollback()
+        return error_response(str(e), status_code=500)
+
+
 
 @company_bp.route('/drives/<int:drive_id>', methods=['GET', 'PUT', 'DELETE'])
 
@@ -232,9 +228,7 @@ def get_applications():
                 "student": stu,
                 "drive": driv,
                 "status": app.status,
-                "application_date": app.application_date.isoformat(),
-                "interview_schedule": app.interview_schedule,
-                "selection_result": app.selection_result
+                "application_date": app.time
             })
         
         # Statistics

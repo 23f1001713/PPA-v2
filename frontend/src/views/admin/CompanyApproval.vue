@@ -108,24 +108,29 @@
       <h1>Application Management </h1>
     </div>
 
-    <div class="stats ">
+    <div class="stats" v-if="stats">
     <div class="stat ">
-        <div class="stat-number">10</div>
-        <div class="stat-label">Total Drives</div>
+        <div class="stat-number">{{ stats.total }}</div>
+        <div class="stat-label">Total Application</div>
     </div>
     <div class="stat">
-        <div class="stat-number">10</div>
-        <div class="stat-label">Total Approved</div>
+        <div class="stat-number">{{ stats.selected }}</div>
+        <div class="stat-label">Selected</div>
     </div>
     <div class="stat  ">
-        <div class="stat-number">10</div>
-        <div class="stat-label">Pending</div>
+        <div class="stat-number">{{ stats.shortlisted }}</div>
+        <div class="stat-label">Shortlised</div>
     </div>
 <div class="stat  ">
-        <div style="color: red;" class="stat-number">10</div>
-        <div class="stat-label">Closed</div>
+        <div style="color: red;" class="stat-number">{{stats.pending}}</div>
+        <div class="stat-label">Pending</div>
+    </div>
+    <div class="stat  ">
+        <div style="color: red;" class="stat-number">{{ stats.rejected }}</div>
+        <div class="stat-label">Rejected</div>
     </div>
 </div>
+<div class="stats" v-else>Loading Data.....</div>
 
 <div id="tableView">
     <table class="app-tab">
@@ -141,15 +146,15 @@
         </thead>
         <tbody>
             
-            <tr>
+            <tr v-for="a in apple" :key="a.student_id">
 
 
-                <td><strong>1</strong></td>
+                <td><strong>{{ a.student_id }}</strong></td>
                 <td>
                     <div class="s-cell">
 
                         <div class="stud-deta">
-                            <div class="stud-name">Akash Maurya</div>
+                            <div class="stud-name">{{a.student_name}}</div>
 
                         </div>
                     </div>
@@ -158,17 +163,17 @@
                 <td>
                     <div class="d-info">
                         
-                        <div class="drive-title-sm">5</div>
+                        <div class="drive-title-sm">{{ a.drive_id }}/{{ a.drive_name }}</div>
 
                     </div>
                 </td>
 
                 <td>
 
-                    <span class="status-badge status-selected">Approved</span>
-
-                    
-                    <span class="status-badge status-shortlisted">Blocked</span>
+                    <span v-if="a.status == 'SELECTED'" class="status-badge status-selected">Selected</span>
+                    <span v-else-if="a.status == 'REJECTED'" class="status-badge status-selected">Rejected</span>
+                    <span v-else-if="a.status == 'PENDING'" class="status-badge status-selected">Pending</span>
+                    <span v-else class="status-badge status-shortlisted">Blocked</span>
 
                     
 
@@ -203,17 +208,23 @@ import { adminAPI } from '@/services/api';
 import { ref,onMounted } from 'vue';
 
 const stats = ref({
-
+total:0,pending:0,shortlisted:0,selected:0,rejected:0
 })
 
-
+const apple = ref([])
 const fetchAApplication = async () => {
     try {
         const response = await adminAPI.getApplications();
-        
-        // Success: Handle your statistics data
-        const stats = response.data;
-        console.log("Dashboard Stats:", stats);
+        const serverData = response.data.data;
+        stats.value = {
+            total:serverData.total,
+            selected:serverData.selected,
+            rejected:serverData.rejected,
+            pending:serverData.pending,
+            shortlisted:serverData.shortlisted
+        }
+        apple.value = serverData.applications
+        console.log("Dashboard Stats:", serverData);
         
         
     } catch (error) {

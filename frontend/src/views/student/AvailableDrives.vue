@@ -103,13 +103,13 @@ button{
     <div class="drives">
 
         
-        <div class="drive">
+        <div v-for="d in drives" :key="d.id" class="drive">
             <div class="drive-h">
                 <div>
-                    <div class="drive-t">Drive Title</div>
+                    <div class="drive-t">{{ d.title }}</div>
                     <div class="c-name">
                         <i class="bi bi-building"></i>
-                      Companny Name
+                      {{ d.company_name }}
                     </div>
                 </div>
                 <span class="drive-b badge-new">New</span>
@@ -117,65 +117,25 @@ button{
             </div>
 
             <p class="drive-description">
-                description
+                description:{{ d.description }}
             </p>
 
             <div class="drive-m">
 
                 <div class="meta-i">
                     <i class="bi bi-calendar-check"></i>
-                    <span>Deadline: deadline</span>
+                    <span>Deadline: {{ d.deadline }}</span>
                 </div>
 
             </div>
             <div class="drive-tags">
-                <p style="font-size: 12px;">Eligibility : </p><span class="tag">Eligibility</span>
+                <p style="font-size: 12px;">Eligibility : {{ d.eligibility }}</p><span class="tag">Eligibility</span>
             </div>
 
 
             <div class="drive-f">
                 <a class="btn-apply" href="/">
-                    <button class="btn-apply">
-                        <i class="bi bi-send-fill"></i>
-                        Apply Now
-                    </button>
-                </a>
-
-            </div>
-        </div>
-        <div class="drive">
-            <div class="drive-h">
-                <div>
-                    <div class="drive-t">Drive Title</div>
-                    <div class="c-name">
-                        <i class="bi bi-building"></i>
-                      Companny Name
-                    </div>
-                </div>
-                <span class="drive-b badge-new">New</span>
-
-            </div>
-
-            <p class="drive-description">
-                description
-            </p>
-
-            <div class="drive-m">
-
-                <div class="meta-i">
-                    <i class="bi bi-calendar-check"></i>
-                    <span>Deadline: deadline</span>
-                </div>
-
-            </div>
-            <div class="drive-tags">
-                <p style="font-size: 12px;">Eligibility : </p><span class="tag">Eligibility</span>
-            </div>
-
-
-            <div class="drive-f">
-                <a class="btn-apply" href="/">
-                    <button class="btn-apply">
+                    <button @click="applyNow" class="btn-apply">
                         <i class="bi bi-send-fill"></i>
                         Apply Now
                     </button>
@@ -190,15 +150,33 @@ button{
 </template>
 
 <script setup>
-import { onMounted } from 'vue';
+import { onMounted ,ref} from 'vue';
 import { studentAPI } from '@/services/api';
+const drives = ref([])
+
 
 const drivefetch = async() =>{
     try{
         const response = await studentAPI.getDrives();
-        console.log(response.data)
+        const serverData = response.data.data;
+        drives.value = serverData.drives
+        console.log(serverData)
     }catch(error){
         console.log(error.message)
+    }
+}
+
+const applyNow= async(drive)=>{
+    try{
+        
+        const apply = await studentAPI.applyForDrive(drive.id)
+        drivefetch()
+        alert(apply.data)
+        console.log(apply.data)
+          
+    }catch (error) {
+        console.error("Failed to Apply:", error);
+        
     }
 }
 

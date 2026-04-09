@@ -149,7 +149,7 @@
     <div class="banner">
         <div class="wel-con">
             <div class="wel-text">
-                <h1>Welcome back,Company Name</h1>
+                <h1>Welcome back,{{ stats.name }}</h1>
             </div>
             </div>
 </div>
@@ -157,7 +157,7 @@
         <div class="stat">
 
             <div class="stat-i">
-                <h3>10 </h3>
+                <h3>{{ stats.pd }} </h3>
                 <p>Pending Approval</p>
             </div>
         </div>
@@ -165,7 +165,7 @@
         <div class="stat ">
 
             <div class="stat-i">
-                <h3>10</h3>
+                <h3>{{ stats.td }}</h3>
                 <p>Active Drives</p>
             </div>
         </div>
@@ -173,7 +173,7 @@
         <div class="stat ">
 
             <div class="stat-i">
-                <h3>10</h3>
+                <h3>{{ stats.ta }}</h3>
                 <p>Total Applicants</p>
             </div>
         </div>
@@ -181,7 +181,7 @@
         <div class="stat">
 
             <div class="stat-i">
-                <h3>10</h3>
+                <h3>{{ stats.sh }}</h3>
                 <p>Shortlisted</p>
             </div>
         </div>
@@ -246,19 +246,35 @@
 </template>
 
 
-<script>
+<script setup>
 
+import { ref,onMounted } from 'vue';
 import { companyAPI } from '@/services/api';
 
+
+const stats = ref({
+pd:0 , sh:0,td:0 , ta:0,name:''
+})
 const fetchdata = async () =>{
     try{
     const response = await companyAPI.getDashboard();
-    console.log(response.data.data)
+    const serverData = response.data.data;
+
+    stats.value = {
+        pd:serverData.statistics.pending_drives,
+        sh:serverData.statistics.shortlisted,
+        td:serverData.statistics.total_drives,
+        ta:serverData.statistics.total_applications,
+        name:serverData.company.name
+    }
+    console.log(serverData)
 }catch (error){
     console.log(error.message)
 }
 }
 
-fetchdata()
+onMounted(() =>{
+    fetchdata()
+})
 
 </script>

@@ -86,8 +86,8 @@ export const adminAPI = {
   getDrives: (params = {}) => 
     api.get('/admin/drives', { params }),
   
-  approveDrive: (driveId, action) => 
-    api.put(`/admin/drives/${driveId}/approve`, { action }),
+  approveDrive: (driveId) => 
+    api.put(`/admin/drives/${driveId}/approve`),
   
   closeDrive: (driveId) => 
     api.put(`/admin/drives/${driveId}/close`),
@@ -149,6 +149,9 @@ export const companyAPI = {
   
   createDrive: (data) => 
     api.post('/company/drives', data),
+
+  closeDrive: (driveId) => 
+    api.put(`/company/drives/${driveId}/close`),
   
   updateDrive: (driveId, data) => 
     api.put(`/company/drives/${driveId}`, data),

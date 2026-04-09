@@ -202,29 +202,29 @@ a{
 
         <div class="drives">
             
-            <div class="drive">
+            <div v-for="d in drives" :key="d.id" class="drive">
                 <div class="drive-h">
                     <div>
-                        <div class="drive-id">ID</div>
-                        <div class="drive-t">Title Goes here</div>
+                        <div class="drive-id">{{ d.id }}</div>
+                        <div class="drive-t">{{d.title}}</div>
                     </div>
                     
-                    <span class="drive-s status-pending">Pending Approval</span>
+                    <span v-if="d.status == 'PENDING'" class="drive-s status-pending">Pending Approval</span>
                    
-                    <span class="drive-s status-active">Active</span>
+                    <span v-else-if="d.status=='APPROVED'" class="drive-s status-active">Active</span>
                  
-                    <span class="drive-s status-active">Closed</span>
+                    <span v-else class="drive-s status-active">Closed</span>
                    
                 </div>
 
                 <div class="drive-m">
                     <div class="meta-i">
                         <i class="bi bi-geo-alt-fill"></i>
-                        <span>Description :  </span>
+                        <span>Description : {{ d.description }} </span>
 
                         <div class="meta-i">
                             <i class="bi bi-calendar-check"></i>
-                            <span>Deadline: </span>
+                            <span>Deadline: {{ d.date }}</span>
                         </div>
 
                     </div>
@@ -233,77 +233,27 @@ a{
 
 
                 <div class="drive-actions">
-                    <a href="">
+                    <RouterLink to="/company/applications">
                         <button class="btn-action btn-view">
                             
                             View Applicants
                         </button>
-                    </a>
-                    <a href="">
+                    </RouterLink>
+                    <RouterLink to="/company/edit/drive">
                         <button class="btn-action btn-edit">
                            
                             Edit
                         </button>
-                    </a>
+                    </RouterLink>
                     <a href="">
-                        <button class="btn-action btn-edit">
+                        <button @click="closeD(d)" class="btn-action btn-edit">
                             
                             Close
                         </button>
                     </a>
                 </div>
             </div>
-            <div class="drive">
-                <div class="drive-h">
-                    <div>
-                        <div class="drive-id">ID</div>
-                        <div class="drive-t">Title Goes here</div>
-                    </div>
-                    
-                    <span class="drive-s status-pending">Pending Approval</span>
-                   
-                    <span class="drive-s status-active">Active</span>
-                 
-                    <span class="drive-s status-active">Closed</span>
-                   
-                </div>
-
-                <div class="drive-m">
-                    <div class="meta-i">
-                        <i class="bi bi-geo-alt-fill"></i>
-                        <span>Description :  </span>
-
-                        <div class="meta-i">
-                            <i class="bi bi-calendar-check"></i>
-                            <span>Deadline: </span>
-                        </div>
-
-                    </div>
-                </div>
-
-
-
-                <div class="drive-actions">
-                    <a href="">
-                        <button class="btn-action btn-view">
-                            
-                            View Applicants
-                        </button>
-                    </a>
-                    <a href="">
-                        <button class="btn-action btn-edit">
-                           
-                            Edit
-                        </button>
-                    </a>
-                    <a href="">
-                        <button class="btn-action btn-edit">
-                            
-                            Close
-                        </button>
-                    </a>
-                </div>
-            </div>
+            
           
 
 
@@ -317,16 +267,38 @@ a{
 </template>
 
 <script setup>
+import { ref,onMounted } from 'vue';
 import { companyAPI } from '@/services/api';
+
+
+const drives = ref([]) 
 
 const CompanyDrive = async()=>{
     try{
         const response = await companyAPI.getDrives();
-        console.log(response.data)
+        const serverData = response.data.data
+
+        drives.value = serverData.drives
     }catch(error){
         console.log(error.message)
     }
 }
 
-CompanyDrive()
+const closeD = async (d)=>{
+    const action = d.status === 'CLOSED' ? 'unclose' : 'close';
+    if (!confirm(`Are you sure you want to ${action} this drive?`)) return;
+
+    try {
+        const response = await companyAPI.closeDrive(d.id);
+        await CompanyDrive()
+        console.log(response.data)
+    }catch(error){
+        console.error("Failed to change status:", error);
+        alert("Error updating status");
+    }
+}
+
+onMounted(()=>{
+    CompanyDrive()
+})
 </script>

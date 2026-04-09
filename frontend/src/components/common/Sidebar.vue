@@ -12,7 +12,6 @@
         <li><RouterLink to="/admin/companies">Company</RouterLink></li>
         <li><RouterLink to="/admin/drives">Drives</RouterLink></li>
         <li><RouterLink to="/admin/applications">Application</RouterLink></li>
-        <li><RouterLink to="/admin/reports">Reports</RouterLink></li>
 
         <li class="logout"><button @click="handleLogout">Logout</button></li>
       </ul>

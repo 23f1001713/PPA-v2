@@ -65,34 +65,35 @@
   <div class="main-container">
     <div class="header">
         <div class="welcomecon">
-            <h1>Welcome ,Akash Maurya !</h1>
+            <h1>Welcome ,{{stats.name}} !</h1>
 
         </div>
     </div>
 
-    <div class="stats">
+    <div class="stats" v-if="stats">
         <div class="stat">
-            <div class="stat-n">10</div>
+            <div class="stat-n">{{ stats.t_d }}</div>
             <div class="stat-l">Active Drives</div>
         </div>
 
         <div class="stat ">
-            <div class="stat-n">10</div>
+            <div class="stat-n">{{stats.t_a}}</div>
             <div class="stat-l">Applied</div>
         </div>
 
         <div class="stat ">
-            <div class="stat-n">10</div>
+            <div class="stat-n">{{ stats.sh }}</div>
             <div class="stat-l">Shortlisted</div>
         </div>
 
     
         <div class="stat ">
-            <div class="stat-n">10</div>
+            <div class="stat-n">{{ stats.re }}</div>
             <div class="stat-l">Rejected</div>
         </div>
     </div>
 
+<div class="stats" v-else>Loading Data.....</div>
 
 <div class="quick">
   <div class="panel"><h3>View Recent Jobs</h3>
@@ -108,13 +109,28 @@
 </template>
 
 <script setup>
-import { onMounted } from 'vue';
+import { onMounted ,ref} from 'vue';
 import { studentAPI } from '@/services/api';
+
+const stats = ref ({
+  t_d:0 ,t_a:0,sh:0,se:0,re:0,name:""
+})
+
 
 const studDash = async ()=>{
   try{
     const response = await studentAPI.getDashboard();
-    console.log(response.data)
+    const serverData= response.data.data;
+
+    stats.value = {
+      t_d:serverData.total_drives,
+      t_a:serverData.applied,
+      sh:serverData.shortlisted,
+      se:serverData.selected,
+      re:serverData.rejected,
+      name:serverData.student
+    }
+    console.log(serverData)
   }catch(error){
     console.log(error.message)
   }

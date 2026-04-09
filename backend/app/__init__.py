@@ -22,6 +22,7 @@ def create_app():
     app.config['JWT_REFRESH_TOKEN_EXPIRES'] = timedelta(days=30)
     app.config['CORS_HEADERS'] = 'Content-Type'
     
+    
     # Initialize extensions
 
     jwt.init_app(app)
