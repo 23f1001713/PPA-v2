@@ -107,8 +107,20 @@
   </div>
 </template>
 
-<script>
-export default {
-  name: 'StudentDashboard'
+<script setup>
+import { onMounted } from 'vue';
+import { studentAPI } from '@/services/api';
+
+const studDash = async ()=>{
+  try{
+    const response = await studentAPI.getDashboard();
+    console.log(response.data)
+  }catch(error){
+    console.log(error.message)
+  }
 }
+onMounted(() => {
+  studDash();
+});
+
 </script>

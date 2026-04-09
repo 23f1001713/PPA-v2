@@ -245,8 +245,20 @@
   
 </template>
 
+
 <script>
-export default {
-  name: 'CompanyDashboard'
+
+import { companyAPI } from '@/services/api';
+
+const fetchdata = async () =>{
+    try{
+    const response = await companyAPI.getDashboard();
+    console.log(response.data.data)
+}catch (error){
+    console.log(error.message)
 }
+}
+
+fetchdata()
+
 </script>

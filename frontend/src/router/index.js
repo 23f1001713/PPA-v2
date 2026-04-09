@@ -82,37 +82,37 @@ const router = createRouter({
         path: '/admin/dashboard',
         name: 'AdminDashboard',
         component: AdminDashboard,
-        meta: { role: 'ADMIN', showSidebar: true ,showFooter: false , showNavbar:false}
+        meta: { role: 'ADMIN', showSidebar: true ,showFooter: false , showNavbar:false , showModal:false}
       },
       {
         path: '/admin/applications',
         name: 'CompanyApproval',
         component: CompanyApproval,
-        meta: { role: 'ADMIN', showSidebar: true ,showFooter: false , showNavbar:false}
+        meta: { role: 'ADMIN', showSidebar: true ,showFooter: false , showNavbar:false , showModal:false}
       },
       {
         path: '/admin/drives',
         name: 'DriveApproval',
         component: DriveApproval,
-        meta: { role: 'ADMIN', showSidebar: true,showFooter:false , showNavbar:false }
+        meta: { role: 'ADMIN', showSidebar: true,showFooter:false , showNavbar:false,showModal:false }
       },
       {
         path: '/admin/students',
         name: 'ManageStudents',
         component: ManageStudents,
-        meta: { role: 'ADMIN', showSidebar: true,showFooter:false , showNavbar:false }
+        meta: { role: 'ADMIN', showSidebar: true,showFooter:false , showNavbar:false,showModal:false }
       },
       {
         path: '/admin/companies',
         name: 'ManageCompanies',
         component: ManageCompanies,
-        meta: { role: 'ADMIN', showSidebar: true,showFooter:false , showNavbar:false }
+        meta: { role: 'ADMIN', showSidebar: true,showFooter:false , showNavbar:false , showModal:false }
       },
       {
         path: '/admin/reports',
         name: 'ReportsDashboard',
         component: ReportsDashboard,
-       meta: { role: 'ADMIN', showSidebar: true ,showFooter: false , showNavbar:false}
+       meta: { role: 'ADMIN', showSidebar: true ,showFooter: false , showNavbar:false , showModal:false}
       },
       {
         path: '/admin/reports/monthly',

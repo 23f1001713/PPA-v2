@@ -189,8 +189,23 @@ button{
   </div>
 </template>
 
-<script>
-export default {
-  name: 'AvailableDrives'
+<script setup>
+import { onMounted } from 'vue';
+import { studentAPI } from '@/services/api';
+
+const drivefetch = async() =>{
+    try{
+        const response = await studentAPI.getDrives();
+        console.log(response.data)
+    }catch(error){
+        console.log(error.message)
+    }
 }
+
+onMounted(()=>{
+    drivefetch();
+}
+)
+
+
 </script>

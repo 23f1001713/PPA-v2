@@ -312,8 +312,35 @@
   </div>
 </template>
 
-<script>
-export default {
-  name: 'DriveApproval'
-}
+<script setup>
+import { adminAPI } from '@/services/api';
+
+const fetchADrives = async () => {
+    try {
+        const response = await adminAPI.getDrives();
+        
+        // Success: Handle your statistics data
+        const stats = response.data;
+        console.log("Dashboard Stats:", stats);
+        
+        
+    } catch (error) {
+        if (error.response) {
+            // Handle specific status codes
+            if (error.response.status === 401) {
+                console.error("Session expired. Please login again.");
+                // Redirect to login page
+            } else if (error.response.status === 403) {
+                console.error("Access Denied: You are not an Admin.");
+            } else {
+                console.error("Server Error:", error.response.data.message);
+            }
+        } else {
+            console.error("Network Error:", error.message);
+        }
+    }
+};
+
+// Call the function when the page/component loads
+fetchADrives();
 </script>

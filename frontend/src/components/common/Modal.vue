@@ -54,6 +54,15 @@
             gap: 8px;
         }
 
+        button{
+    margin-left: 15px;
+
+    background-color: #8100D1;
+    border: none;
+    color: white;
+    font-size: 14px;}
+
+
 </style>
 
 <template>
@@ -78,7 +87,7 @@
                         Create Drive</RouterLink></li>
                 <li><RouterLink to="/company/profile" class="s_p"> Profile</RouterLink>
                 </li>
-                <li><RouterLink to="/" class="s_p"> Logout</RouterLink>
+                <li><button @click="handleLogout">Logout</button>
                 </li>
             </ul>
         </div>
@@ -86,7 +95,22 @@
 
 </template>
 <script>
+import { useRouter } from 'vue-router';
+
 export default {
-  name: 'Modal'
+  name: 'Modal',
+  setup(){
+    const router = useRouter()
+
+    const handleLogout = ()=>{
+        localStorage.removeItem('user_token')
+        localStorage.removeItem('user_role')
+
+        router.push({path:'/login',
+            query:{message:'You are Logged Out sucessfully !'}
+        })
+    }
+    return {handleLogout};
+  }
 }
 </script>

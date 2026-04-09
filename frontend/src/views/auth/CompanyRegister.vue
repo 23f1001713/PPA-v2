@@ -154,8 +154,10 @@
 </template>
 
 <script>
+import { authAPI , handleResponse,handleError } from '@/services/api';
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
+
 
 
 export default {
@@ -222,7 +224,7 @@ export default {
       
       try {
         // Prepare data to send to backend
-        const requestData = {
+        const response = await authAPI.registerCompany({
           email: formData.value.email,
           username: formData.value.username,
           password: formData.value.password,
@@ -230,21 +232,11 @@ export default {
           hr_contact: formData.value.hr,
           website: formData.value.website,
           role: 'company'
-        }
-        const response = await fetch('http://localhost:5000/api/register', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json'
-          },
-          body: JSON.stringify(requestData)
         })
         
         // Parse response
-        const data = await response.json()
-        
-        if (response.ok) {
-          // Registration successful
+        const data = handleResponse(response)
+        if (response.ok){
           showAlert('Company registration successful! Please wait for admin approval.', 'alert-success')
           
           // Reset form
@@ -261,7 +253,7 @@ export default {
           setTimeout(() => {
             router.push('/login')
           }, 2000)
-        } else {
+         } else {
           // Registration failed
           showAlert(data.message || 'Registration failed. Please try again.', 'alert-error')
         }

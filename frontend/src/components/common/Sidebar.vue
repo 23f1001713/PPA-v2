@@ -14,7 +14,7 @@
         <li><RouterLink to="/admin/applications">Application</RouterLink></li>
         <li><RouterLink to="/admin/reports">Reports</RouterLink></li>
 
-        <li class="logout"><a to="">Logout</a></li>
+        <li class="logout"><button @click="handleLogout">Logout</button></li>
       </ul>
     
 
@@ -22,8 +22,23 @@
 </template>
 
 <script>
+import { useRouter } from 'vue-router';
+
 export default {
-  name: 'Sidebar'
+  name: 'Sidebar',
+  setup(){
+    const router = useRouter()
+
+    const handleLogout = () =>{
+        localStorage.removeItem('user_token')
+        localStorage.removeItem('user_role')
+
+        router.push({path:'/login' , 
+            query: {message:'You are Logged Out sucessfully !.'}
+        })
+    }
+    return {handleLogout}
+  }
 }
 </script>
 
@@ -75,6 +90,13 @@ export default {
         color: white;
         border-left: 4px solid #4facfe;
     }
+button{
+    margin-left: 15px;
+    margin-top: 30px;
 
+    background-color: rgb(6, 6, 135);
+    border: none;
+    color: white;
+    font-size: 14px;}
 
 </style>

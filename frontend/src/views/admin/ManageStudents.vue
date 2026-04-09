@@ -124,23 +124,21 @@
 
 
 
-<div class="stats ">
+<div class="stats" v-if="stats">
     <div class="stat hov">
-        <div class="stat-number">10</div>
+        <div class="stat-number">{{ stats.t_s }}</div>
         <div class="stat-label">Total Students</div>
     </div>
     <div class="stat applied hov">
-        <div class="stat-number">10</div>
+        <div class="stat-number">{{ stats.s_a }}</div>
         <div class="stat-label">Approved</div>
     </div>
     <div class="stat shortlisted hovr">
-        <div class="stat-number">10</div>
+        <div class="stat-number">{{ stats.s_b }}</div>
         <div class="stat-label">Blacklisted</div>
     </div>
-
-
 </div>
-
+<div class="stats" v-else>Loading Stats here....</div>
 <div id="tableView">
     <table class="app-tab">
         <thead>
@@ -155,15 +153,15 @@
         </thead>
         <tbody>
             
-            <tr>
+            <tr  v-for="student in students" :key="student.id">
 
 
-                <td><strong>1</strong></td>
+                <td><strong>{{ student.id }}</strong></td>
                 <td>
                     <div class="s-cell">
 
                         <div class="stud-deta">
-                            <div class="stud-name">Akash Maurya</div>
+                            <div class="stud-name">{{ student.name }}</div>
 
                         </div>
                     </div>
@@ -172,17 +170,17 @@
                 <td>
                     <div class="d-info">
                         
-                        <div class="drive-title-sm">5</div>
+                        <div class="drive-title-sm">{{ student.app_count }}</div>
 
                     </div>
                 </td>
 
                 <td>
 
-                    <span class="status-badge status-selected">Approved</span>
+                    <span class="status-badge status-selected" v-if="student.status == 'APPROVED'">Approved</span>
 
                     
-                    <span class="status-badge status-shortlisted">Blocked</span>
+                    <span class="status-badge status-shortlisted" v-else>Blocked</span>
 
                     
 
@@ -191,11 +189,11 @@
                     <div class="t-a">
                         <a href="#">
                             
-                            <button style="background-color: #28a745; color: white;" class="btn-sm btn-view">
+                            <button @click="handleToggleStatus(student)" v-if="student.status != 'APPROVED'" style="background-color: #28a745; color: white;" class="btn-sm btn-view">
                                 <i class="bi bi-unlock"></i> Unblock
                             </button>
                            
-                            <button style="background-color: #dc3545; color: white;" class="btn-sm btn-view">
+                            <button @click="handleToggleStatus(student)" v-else style="background-color: #dc3545; color: white;" class="btn-sm btn-view">
                                 <i class="bi bi-slash-circle"></i> Block
                             </button>
                           
@@ -223,8 +221,65 @@
   </div>
 </template>
 
-<script>
-export default {
-  name: 'ManageStudents'
-}
+<script setup>
+import { ref,onMounted } from 'vue';
+import { adminAPI } from '@/services/api';
+const stats = ref({
+    s_a:0,s_b:0,t_s:0
+})
+
+const students = ref([])
+
+
+const fetchAStudent = async () => {
+    try {
+        const response = await adminAPI.getStudents();
+        const serverData = response.data.data;
+        stats.value = {
+      s_a: serverData.s_a,
+      s_b: serverData.s_b,
+      t_s: serverData.t_s
+    };
+
+    console.log(serverData)
+    students.value = serverData.students
+        
+        
+        
+    } catch (error) {
+        if (error.response) {
+            // Handle specific status codes
+            if (error.response.status === 401) {
+                console.error("Session expired. Please login again.");
+                // Redirect to login page
+            } else if (error.response.status === 403) {
+                console.error("Access Denied: You are not an Admin.");
+            } else {
+                console.error("Server Error:", error.response.data.message);
+            }
+        } else {
+            console.error("Network Error:", error.message);
+        }
+    }
+};
+
+const handleToggleStatus = async (student) => {
+    const action = student.status === 'APPROVED' ? 'unblock' : 'block';
+    
+    // Confirm with user
+    if (!confirm(`Are you sure you want to ${action} this student?`)) return;
+
+    try {
+        const response = await adminAPI.blacklistStudent(student.id);
+        fetchAStudent();
+        console.log(response.data)
+    } catch (error) {
+        console.error("Failed to change status:", error);
+        alert("Error updating status");
+    }
+};
+
+onMounted(() =>{
+    fetchAStudent();
+})
 </script>

@@ -117,25 +117,22 @@
     </form>
 
 </div>
-<div class="stats ">
+<div class="stats" v-if="stats">
     <div class="stat hov">
-        <div class="stat-number">10</div>
+        <div class="stat-number">{{ stats.t_c }}</div>
         <div class="stat-label">Total Companies</div>
     </div>
     <div class="stat applied hov">
-        <div class="stat-number">10</div>
+        <div class="stat-number">{{ stats.t_d }}</div>
         <div class="stat-label">Total Drives</div>
     </div>
     <div class="stat shortlisted hovr">
-        <div class="stat-number">10</div>
-        <div class="stat-label">Applications</div>
-    </div>
-<div class="stat shortlisted hovr">
-        <div style="color: red;" class="stat-number">10</div>
-        <div class="stat-label">Blacklisted</div>
+        <div class="stat-number">{{ stats.t_b }}</div>
+        <div class="stat-label">Total Bloacked</div>
     </div>
 
 </div>
+<div class="stats" v-else> Loading Data .....</div>
 <div id="tableView">
     <table class="app-tab">
         <thead>
@@ -150,15 +147,13 @@
         </thead>
         <tbody>
             
-            <tr>
-
-
-                <td><strong>1</strong></td>
+            <tr v-for="com in comlist" :key="com.id">
+                <td><strong>{{ com.id }}</strong></td>
                 <td>
                     <div class="s-cell">
 
                         <div class="stud-deta">
-                            <div class="stud-name">Akash Maurya</div>
+                            <div class="stud-name">{{com.name}}</div>
 
                         </div>
                     </div>
@@ -167,17 +162,17 @@
                 <td>
                     <div class="d-info">
                         
-                        <div class="drive-title-sm">5</div>
+                        <div class="drive-title-sm">{{ com.drive_count }}</div>
 
                     </div>
                 </td>
 
                 <td>
 
-                    <span class="status-badge status-selected">Approved</span>
+                    <span v-if="com.status == 'APPROVED'" class="status-badge status-selected">Approved</span>
 
                     
-                    <span class="status-badge status-shortlisted">Blocked</span>
+                    <span v-else class="status-badge status-shortlisted">Blocked</span>
 
                     
 
@@ -186,11 +181,11 @@
                     <div class="t-a">
                         <a href="#">
                             
-                            <button style="background-color: #28a745; color: white;" class="btn-sm btn-view">
+                            <button v-if="com.status != 'APPROVED'" @click="handleToggleStatus(com)" style="background-color: #28a745; color: white;" class="btn-sm btn-view">
                                 <i class="bi bi-unlock"></i> Unblock
                             </button>
                            
-                            <button style="background-color: #dc3545; color: white;" class="btn-sm btn-view">
+                            <button v-else @click="handleToggleStatus(com)" style="background-color: #dc3545; color: white;" class="btn-sm btn-view">
                                 <i class="bi bi-slash-circle"></i> Block
                             </button>
                           
@@ -217,8 +212,67 @@
   </div>
 </template>
 
-<script>
-export default {
-  name: 'ManageCompanies'
-}
+<script setup>
+import {ref, onMounted} from 'vue'
+import { adminAPI } from '@/services/api';
+
+const stats = ref({
+    t_c:0,t_d:0,t_b:0
+})
+
+const comlist = ref([])
+
+const fetchACompany = async () => {
+    try {
+        const response = await adminAPI.getCompanies();
+        
+        // Success: Handle your statistics data
+        const serverData = response.data.data;
+        stats.value = {
+            t_c : serverData.t_c,
+            t_d: serverData.t_d,
+            t_b:serverData.t_b
+        }
+
+        comlist.value = serverData.companies
+        console.log(comlist)
+        console.log("Dashboard Stats:", serverData);
+        
+        
+    } catch (error) {
+        if (error.response) {
+            // Handle specific status codes
+            if (error.response.status === 401) {
+                console.error("Session expired. Please login again.");
+                // Redirect to login page
+            } else if (error.response.status === 403) {
+                console.error("Access Denied: You are not an Admin.");
+            } else {
+                console.error("Server Error:", error.response.data.message);
+            }
+        } else {
+            console.error("Network Error:", error.message);
+        }
+    }
+};
+
+const handleToggleStatus = async (com) => {
+    const action = com.status === 'APPROVED' ? 'block' : 'unblock';
+    
+    // Confirm with user
+    if (!confirm(`Are you sure you want to ${action} this Company?`)) return;
+
+    try {
+        const response = await adminAPI.blacklistCompany(com.id);
+        fetchACompany();
+        console.log(response.data)
+    } catch (error) {
+        console.error("Failed to change status:", error);
+        alert("Error updating status");
+    }
+};
+
+onMounted(() =>{
+    fetchACompany();
+})
 </script>

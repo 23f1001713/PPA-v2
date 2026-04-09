@@ -121,8 +121,21 @@
   </div>
 </template>
 
-<script>
-export default {
-  name: 'MyApplications'
+<script setup>
+import { onMounted } from 'vue';
+import { studentAPI } from '@/services/api';
+
+const fetcAppl  = async ()=>{
+    try{
+        const response = await studentAPI.getApplications();
+        console.log(response.data)
+    }catch(error){
+        console.log(error.message)
+    }
 }
+
+onMounted(() =>{
+    fetcAppl();
+})
+
 </script>

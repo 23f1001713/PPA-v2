@@ -316,8 +316,17 @@ a{
 
 </template>
 
-<script>
-export default {
-  name: 'ManageDrives'
+<script setup>
+import { companyAPI } from '@/services/api';
+
+const CompanyDrive = async()=>{
+    try{
+        const response = await companyAPI.getDrives();
+        console.log(response.data)
+    }catch(error){
+        console.log(error.message)
+    }
 }
+
+CompanyDrive()
 </script>

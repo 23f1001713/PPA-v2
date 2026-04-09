@@ -89,24 +89,23 @@
 <script>
 import { useRouter } from 'vue-router';
 export default {
-  name: 'Navbar'
+  name: 'Navbar',
+  setup(){
+    const router = useRouter();
+
+    const handleLogout = () => {
+  // 1. Remove all stored user data
+        localStorage.removeItem('user_token');
+        localStorage.removeItem('user_role');
+
+        router.push('/login');
+    }
+    return {handleLogout}
+  }
+
 }
 
 
-
-const router = useRouter();
-
-const handleLogout = () => {
-  // 1. Remove all stored user data
-  localStorage.removeItem('user_token');
-  localStorage.removeItem('user_role');
-
-//   2. Optional: If using a state manager like Pinia/Vuex, reset it here
-  authStore.logout();
-
-  // 3. Redirect to login page
-  router.push('/login');
-};
 </script>
 
 <!-- /* <template>

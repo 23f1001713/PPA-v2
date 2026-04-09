@@ -282,8 +282,17 @@
   </div>
 </template>
 
-<script>
-export default {
-  name: 'ViewApplicants'
+<script setup>
+import { companyAPI } from '@/services/api';
+
+const fetchApp =async()=>{
+    try{
+        const response = await companyAPI.getApplications();
+        console.log(response.data.data)
+    }catch(error) {
+        console.log(error.message)
+    }
 }
+fetchApp();
+
 </script>

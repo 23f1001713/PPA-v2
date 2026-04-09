@@ -64,42 +64,79 @@
       <h1>Admin Dashboard</h1>
     </div>
 
-    <div class="stats">
+    <div class="stats" v-if="stats">
     <div class="stat hov">
-        <div class="stat-number">10</div>
+        <div class="stat-number" data-stat = 't_a'>{{ stats.t_a }}</div>
         <div class="stat-label">Total Applications</div>
     </div>
     <div class="stat hov applied">
-        <div class="stat-number">10</div>
+        <div class="stat-number">{{ stats.t_s }}</div>
         <div class="stat-label">Total Student</div>
     </div>
     <div class="stat hov shortlisted">
-        <div class="stat-number">10</div>
+        <div class="stat-number">{{ stats.t_c }}</div>
         <div class="stat-label">Total Companies</div>
     </div>
     <div class="stat hovr selected">
-        <div class="stat-number">10</div>
+        <div class="stat-number">{{ stats.t_d }}</div>
         <div class="stat-label"> Total Drives</div>
     </div>
     <div class="stat hovr rejected">
-        <div style="color: red;" class="stat-number">10</div>
+        <div style="color: red;" class="stat-number">{{ stats.p_d }}</div>
         <div class="stat-label">Pending Drives</div>
     </div>
     <div class="stat hovr rejected">
-        <div style="color: red;" class="stat-number">10</div>
+        <div style="color: red;" class="stat-number">{{ stats.p_c }}</div>
         <div class="stat-label">Pending Companies</div>
     </div>
     <div class="stat hovr rejected">
-        <div style="color: red;" class="stat-number">10</div>
+        <div style="color: red;" class="stat-number">{{ stats.b_s }}</div>
         <div class="stat-label">Blocked Students</div>
     </div>
 
 </div>
+<div class="stats" v-else> <h1>Loading Data .....</h1></div>
   </div>
 </template>
 
-<script>
-export default {
-  name: 'AdminDashboard'
-}
+
+<script setup>
+import { onMounted,ref } from 'vue';
+import { adminAPI } from '@/services/api';
+
+const stats = ref({
+    t_s: 0, t_c: 0, t_a: 0, t_d: 0, p_c: 0, p_d: 0, b_s: 0
+});
+
+const fetchAdminDashboard = async () => {
+    try {
+        const response = await adminAPI.getDashboard();
+        
+        // Success: Handle your statistics data
+        stats.value = response.data.data.statistics;
+        console.log("Dashboard Stats:", stats);
+        
+        
+    } catch (error) {
+        if (error.response) {
+            // Handle specific status codes
+            if (error.response.status === 401) {
+                console.error("Session expired. Please login again.");
+                // Redirect to login page
+            } else if (error.response.status === 403) {
+                console.error("Access Denied: You are not an Admin.");
+            } else {
+                console.error("Server Error:", error.response.data.message);
+            }
+        } else {
+            console.error("Network Error:", error.message);
+        }
+    }
+};
+
+onMounted(() =>{
+    fetchAdminDashboard();
+})
 </script>
+
+

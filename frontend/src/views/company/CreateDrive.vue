@@ -59,32 +59,37 @@
     <div class="form-container">
             <h3 class="mb-4 text-center">Create New Placement Drive</h3>
 
-            <form action="" method="POST">
+            <form @submit.prevent = 'postData'>
 
 
                 <div class="form-group">
-                    <label for="jobTitle" class="form-label fw-bold">Job Title</label>
-                    <input type="text" class="form-control" id="jobTitle" name="job_title" maxlength="100"
-                        placeholder="e.g., Junior Software Engineer" required>
-                </div>
+    <label for="jobTitle" class="form-label fw-bold">Job Title</label>
+    <!-- Added v-model="formData.job_title" -->
+    <input v-model="formData.job_title" type="text" class="form-control" id="jobTitle" maxlength="100"
+        placeholder="e.g., Junior Software Engineer" required>
+</div>
 
-                <div class="form-group">
-                    <label for="description" class="form-label fw-bold">Job Description</label>
-                    <textarea class="form-control" id="description" name="description" rows="3" maxlength="200"
-                        placeholder="Briefly describe the role..." required></textarea>
-                    <div class="form-text text-end">Max 200 characters</div>
-                </div>
+<div class="form-group">
+    <label for="description" class="form-label fw-bold">Job Description</label>
+    <!-- Added v-model="formData.description" -->
+    <textarea v-model="formData.description" class="form-control" id="description" rows="3" maxlength="200"
+        placeholder="Briefly describe the role..." required></textarea>
+    <div class="form-text text-end">Max 200 characters</div>
+</div>
 
-                <div class="form-group">
-                    <label for="eligibility" class="form-label fw-bold">Eligibility Criteria</label>
-                    <input type="text" class="form-control" id="eligibility" name="eligibility" maxlength="100"
-                        placeholder="e.g., B.Tech CSE, Min 7.5 CGPA" required>
-                </div>
+<div class="form-group">
+    <label for="eligibility" class="form-label fw-bold">Eligibility Criteria</label>
+    <!-- Added v-model="formData.eligibility" -->
+    <input v-model="formData.eligibility" type="text" class="form-control" id="eligibility" maxlength="100"
+        placeholder="e.g., B.Tech CSE, Min 7.5 CGPA" required>
+</div>
 
-                <div class="form-group">
-                    <label for="deadline" class="form-label fw-bold">Application Deadline</label>
-                    <input type="datetime-local" class="form-control" id="deadline" name="deadline" required>
-                </div>
+<div class="form-group">
+    <label for="deadline" class="form-label fw-bold">Application Deadline</label>
+    <!-- Added v-model="formData.deadline" -->
+    <input v-model="formData.deadline" type="datetime-local" class="form-control" id="deadline" required>
+</div>
+
 
 
 
@@ -99,8 +104,22 @@
   </div>
 </template>
 
-<script>
-export default {
-  name: 'CreateDrive'
-}
+<script setup>
+import { ref } from 'vue';
+import { companyAPI } from '@/services/api';
+
+const formData = ref({
+    job_title: '',
+    description: '',
+    eligibility: '',
+    deadline: ''
+});
+const postData = async () => {
+  try {
+    const response = await companyAPI.createDrive(formData.value);
+    console.log('success',response.data);
+  } catch (error) {
+    console.error(error);
+  }
+};
 </script>
