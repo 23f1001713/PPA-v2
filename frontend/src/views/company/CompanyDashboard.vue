@@ -150,6 +150,8 @@
         <div class="wel-con">
             <div class="wel-text">
                 <h1>Welcome back,{{ stats.name }}</h1>
+                <p>Status : {{ stats.status }}</p>
+                <p>website : {{ stats.website }}</p>
             </div>
             </div>
 </div>
@@ -253,7 +255,7 @@ import { companyAPI } from '@/services/api';
 
 
 const stats = ref({
-pd:0 , sh:0,td:0 , ta:0,name:''
+pd:0 , sh:0,td:0 , ta:0,name:'',status:'',website:'',
 })
 const fetchdata = async () =>{
     try{
@@ -265,7 +267,9 @@ const fetchdata = async () =>{
         sh:serverData.statistics.shortlisted,
         td:serverData.statistics.total_drives,
         ta:serverData.statistics.total_applications,
-        name:serverData.company.name
+        name:serverData.company.name,
+        website:serverData.company.website,
+        status:serverData.company.status
     }
     console.log(serverData)
 }catch (error){

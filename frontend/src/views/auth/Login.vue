@@ -35,9 +35,14 @@ input{
 .register button{
   padding: 8px 30px;
   margin-left: 30px;
+  border-radius: 8px;
+}
+.register button:hover{
+  background-color: blue;
+  color: white;
 }
 
-a{
+.register button a{
   text-decoration: none;
 }
 
@@ -60,8 +65,10 @@ a{
                     </div>
                     <div class="mb-3">
                         <label for="password" class="form-label">Password</label><br>
-                        <input type="password" class="form-control" v-model="formData.password" id="password" name="password"
+                        
+                        <input type="password" class="form-control" v-model="formData.password"  @input="checkPassword()" id="password" name="password"
                             placeholder="password" :disabled="loading">
+                            <p v-if="errorMess">{{ errorMess }}</p>
                     </div>
 
                     <div class="dgrid">
@@ -97,7 +104,7 @@ export default {
       username: '',
       password: ''
     })
-
+    const errorMess = ref('')
     const loading = ref(false)
     const alertMessage = ref('')
     const alertType = ref('')
@@ -156,7 +163,17 @@ export default {
       }
     }
 
-    return { formData, loading, alertMessage, alertType, handleSubmit }
+const checkPassword =()=>{
+  const pass = formData.value.password
+  if(pass.length > 16 || pass.length< 8){
+    errorMess.value = 'Password len must be between 8 and 16'
+  }else{
+    errorMess.value = ''
   }
 }
+    return { formData, loading, alertMessage, alertType, handleSubmit,checkPassword ,errorMess}
+  }
+}
+
+
 </script>

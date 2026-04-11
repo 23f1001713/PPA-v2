@@ -112,7 +112,6 @@ const fetchAdminDashboard = async () => {
     try {
         const response = await adminAPI.getDashboard();
         
-        // Success: Handle your statistics data
         stats.value = response.data.data.statistics;
         console.log("Dashboard Stats:", stats);
         

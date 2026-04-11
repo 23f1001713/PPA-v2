@@ -24,17 +24,28 @@ def student_dashboard():
         if not student:
             return error_response("Student profile not found", status_code=404)
         
-        # Get statistics
+        
         total_drives = PlacementDrives.query.filter(PlacementDrives.status == 'APPROVED').count()
         applications = Application.query.filter_by(student_id=student.id).all()
         applied_count = len(applications)
         shortlisted = sum(1 for app in applications if app.status == 'SHORTLISTED')
         selected = sum(1 for app in applications if app.status == 'SELECTED')
         rejected = sum(1 for app in applications if app.status == 'REJECTED')
-        
+        user = User.query.get(student.user_id)
+        stud = {
+                'name':student.name,
+                'branch':student.branch,
+                'cgpa':student.cgpa,
+                'resume':student.resume_path,
+                'status':student.status
+            }
         
         return success_response({
-            "student": student.name,
+            "student": stud,
+            "user": {
+                    "username": user.username,
+                    "email": user.email
+                },
             "total_drives": total_drives,
             "applied": applied_count,
             "shortlisted": shortlisted,
@@ -58,16 +69,21 @@ def student_profile():
         
         if request.method == 'GET':
             user = User.query.get(student.user_id)
+            stud = {
+                'name':student.name,
+                'branch':student.branch,
+                'cgpa':student.cgpa,
+                'resume':student.resume_path,
+                'status':student.status
+            }
             return success_response({
-                "student": student.to_dict(),
+                "student": stud,
                 "user": {
-                    "id": user.id,
                     "username": user.username,
                     "email": user.email
                 }
             })
-        
-        # PUT request - update profile
+
         data = request.get_json()
         
         if 'name' in data:
@@ -78,9 +94,8 @@ def student_profile():
             student.cgpa = float(data['cgpa'])
         if 'resume_path' in data:
             student.resume_path = data['resume_path']
-        
         db.session.commit()
-        return success_response(student.to_dict(), "Profile updated successfully")
+        return success_response("Profile updated successfully")
         
     except Exception as e:
         db.session.rollback()
@@ -126,36 +141,27 @@ def get_drives():
     except Exception as e:
         return error_response(str(e), status_code=500)
 
-@student_bp.route('/drives/<int:drive_id>/apply', methods=['POST'])
+@student_bp.route('/drives/apply', methods=['POST'])
 @jwt_required()
-def apply_for_drive(drive_id):
-    """Apply for a placement drive"""
+def apply_for_drive():
     try:
+
+        data = request.json
+        drive_id = data.get('id')
+        has_applied = data.get('has_applied')
+        if has_applied:
+            return success_response("Already Registerd for This Drive", status_code=201)
+        
+        
         student = get_current_student()
         drive = PlacementDrives.query.get_or_404(drive_id)
         
-        # Check if drive is approved
         if drive.status != 'APPROVED':
             return error_response("This drive is not open for applications", status_code=400)
-        
-        # Check if already applied
-        existing_application = Application.query.filter_by(
-            student_id=student.id,
-            drive_id=drive_id
-        ).first()
-        
-        if existing_application:
-            return error_response("You have already applied for this drive", status_code=400)
-        
-        # Check eligibility (implement your logic)
-        # For now, simple eligibility check
-       
-        
-        # Create application
+ 
         application = Application(
             drive_id=drive_id,
-            student_id=student.id,
-            status='PENDING'
+            student_id=student.id
         )
         
         db.session.add(application)
@@ -235,21 +241,20 @@ def get_history():
     except Exception as e:
         return error_response(str(e), status_code=500)
 
-# @student_bp.route('/export/csv', methods=['POST'])
-# @student_required
-# def export_applications_csv():
-#     """Trigger async job to export applications as CSV"""
-#     try:
-#         from app.tasks.export_tasks import export_student_applications
-#         student = get_current_student()
+@student_bp.route('/export/csv', methods=['POST'])
+@jwt_required()
+def export_applications_csv():
+    try:
+        from app.task import export_csv
+        student = get_current_student()
+        if not student:
+            return error_response("Student not found", 404)
+        task = export_csv.delay(student.id)
+
+        return success_response({
+            "message": "Export started",
+            "task_id": task.id
+        })
         
-#         # Trigger async task
-#         task = export_student_applications.delay(student.id)
-        
-#         return success_response({
-#             "task_id": task.id,
-#             "message": "CSV export started. You will be notified when ready."
-#         })
-        
-#     except Exception as e:
-#         return error_response(str(e), status_code=500)
+    except Exception as e:
+        return error_response(str(e), status_code=500)

@@ -134,8 +134,8 @@ button{
 
 
             <div class="drive-f">
-                <a class="btn-apply" href="/">
-                    <button @click="applyNow" class="btn-apply">
+                <a class="btn-apply">
+                    <button @click="applyNow(d)" class="btn-apply">
                         <i class="bi bi-send-fill"></i>
                         Apply Now
                     </button>
@@ -169,9 +169,11 @@ const drivefetch = async() =>{
 const applyNow= async(drive)=>{
     try{
         
-        const apply = await studentAPI.applyForDrive(drive.id)
+        const apply = await studentAPI.applyForDrive({
+            id: drive.id,
+            has_applied: drive.has_applied })
         drivefetch()
-        alert(apply.data)
+        alert(apply.data.data)
         console.log(apply.data)
           
     }catch (error) {

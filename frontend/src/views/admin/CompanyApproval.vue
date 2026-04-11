@@ -137,10 +137,10 @@
         <thead>
             <tr>
 
-                <th>Student ID</th>
+                <th>Application ID</th>
                 <th>Student Name</th>
                 <th>DriveId / Drive Name</th>
-                <th>Status</th>
+                <th>Application Status</th>
                 <th>Actions</th>
             </tr>
         </thead>
@@ -149,7 +149,7 @@
             <tr v-for="a in apple" :key="a.student_id">
 
 
-                <td><strong>{{ a.student_id }}</strong></td>
+                <td><strong>{{ a.id }}</strong></td>
                 <td>
                     <div class="s-cell">
 
@@ -173,7 +173,7 @@
                     <span v-if="a.status == 'SELECTED'" class="status-badge status-selected">Selected</span>
                     <span v-else-if="a.status == 'REJECTED'" class="status-badge status-selected">Rejected</span>
                     <span v-else-if="a.status == 'PENDING'" class="status-badge status-selected">Pending</span>
-                    <span v-else class="status-badge status-shortlisted">Blocked</span>
+                    <span v-else class="status-badge status-shortlisted">Pending</span>
 
                     
 

@@ -213,7 +213,7 @@ a{
                    
                     <span v-else-if="d.status=='APPROVED'" class="drive-s status-active">Active</span>
                  
-                    <span v-else class="drive-s status-active">Closed</span>
+                    <span v-else class="drive-s status-closed ">Closed</span>
                    
                 </div>
 
@@ -233,24 +233,28 @@ a{
 
 
                 <div class="drive-actions">
-                    <RouterLink to="/company/applications">
+                    
                         <button class="btn-action btn-view">
                             
                             View Applicants
                         </button>
-                    </RouterLink>
-                    <RouterLink to="/company/edit/drive">
-                        <button class="btn-action btn-edit">
+                    
+                   
+                        <button @click="handleEdit(d)" class="btn-action btn-edit">
                            
                             Edit
                         </button>
-                    </RouterLink>
-                    <a href="">
-                        <button @click="closeD(d)" class="btn-action btn-edit">
+                    
+                    
+                        <button v-if="d.status == 'CLOSED'" @click="closeD(d)" class="btn-action btn-edit">
+                            
+                            Unclose
+                        </button>
+                        <button v-else @click="closeD(d)" class="btn-action btn-edit">
                             
                             Close
                         </button>
-                    </a>
+                    
                 </div>
             </div>
             
@@ -269,7 +273,7 @@ a{
 <script setup>
 import { ref,onMounted } from 'vue';
 import { companyAPI } from '@/services/api';
-
+import { useRouter } from 'vue-router';
 
 const drives = ref([]) 
 
@@ -286,16 +290,25 @@ const CompanyDrive = async()=>{
 
 const closeD = async (d)=>{
     const action = d.status === 'CLOSED' ? 'unclose' : 'close';
+    console.log(d.status)
     if (!confirm(`Are you sure you want to ${action} this drive?`)) return;
-
+    console.log(d.id)
     try {
         const response = await companyAPI.closeDrive(d.id);
-        await CompanyDrive()
         console.log(response.data)
+        CompanyDrive()
     }catch(error){
         console.error("Failed to change status:", error);
         alert("Error updating status");
     }
+}
+
+const router = useRouter()
+
+const handleEdit = (driveId) => {
+    const id = driveId.id
+    console.log('Navigating with ID:', driveId?.id || driveId); 
+  router.push(`/company/drives/edit/${id}`)
 }
 
 onMounted(()=>{

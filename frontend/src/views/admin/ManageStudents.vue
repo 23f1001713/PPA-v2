@@ -110,11 +110,11 @@
 
 </div>
 <div class="nav">
-    <form >
+    <form @submit.prevent="search" >
         <div class="search">
-            <input type="text" placeholder="Search companies..." name="search">
+            <input v-model="query" type="text" placeholder="Search students..." name="search">
         
-        <input  style="background-color: blue; color: white;" class="btn btn-outline-success" type="submit" value="Search">
+        <input @click="search(query, role)" style="background-color: blue; color: white;" class="btn btn-outline-success" type="submit" value="Search">
         </div>
     </form>
 
@@ -151,9 +151,68 @@
                 <th>Actions</th>
             </tr>
         </thead>
-        <tbody>
+        <tbody v-if="!apple.length">
             
             <tr  v-for="student in students" :key="student.id">
+
+
+                <td><strong>{{ student.id }}</strong></td>
+                <td>
+                    <div class="s-cell">
+
+                        <div class="stud-deta">
+                            <div class="stud-name">{{ student.name }}</div>
+
+                        </div>
+                    </div>
+                </td>
+
+                <td>
+                    <div class="d-info">
+                        
+                        <div class="drive-title-sm">{{ student.app_count }}</div>
+
+                    </div>
+                </td>
+
+                <td>
+
+                    <span class="status-badge status-selected" v-if="student.status == 'APPROVED'">Approved</span>
+
+                    
+                    <span class="status-badge status-shortlisted" v-else>Blocked</span>
+
+                    
+
+                </td>
+                <td>
+                    <div class="t-a">
+                        <a href="#">
+                            
+                            <button @click="handleToggleStatus(student)" v-if="student.status != 'APPROVED'" style="background-color: #28a745; color: white;" class="btn-sm btn-view">
+                                <i class="bi bi-unlock"></i> Unblock
+                            </button>
+                           
+                            <button @click="handleToggleStatus(student)" v-else style="background-color: #dc3545; color: white;" class="btn-sm btn-view">
+                                <i class="bi bi-slash-circle"></i> Block
+                            </button>
+                          
+                        </a>
+                        <a href="#">
+                            <button class="btn-sm btn-view">
+                                <i class="bi bi-eye"></i> View History
+                            </button>
+                        </a>
+
+                    </div>
+                </td>
+
+            </tr>
+            
+        </tbody>
+        <tbody v-else>
+            
+            <tr  v-for="student in apple" :key="student.id">
 
 
                 <td><strong>{{ student.id }}</strong></td>
@@ -228,6 +287,20 @@ const stats = ref({
 
 const students = ref([])
 
+
+
+const apple = ref([])
+
+const query = ref('')
+const search = async (role = 'STUDENT') =>{
+    try{
+        const response = await adminAPI.search(query.value,role='STUDENT');
+        apple.value = response.data.data;
+        console.log(response.data.data)
+    }catch(error){
+        console.log(error.message)
+    }
+}
 
 const fetchAStudent = async () => {
     try {

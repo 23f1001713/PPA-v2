@@ -108,11 +108,11 @@
       <h1>Company Management </h1>
     </div>
     <div class="nav">
-    <form >
+    <form @submit.prevent="search">
         <div class="search">
-            <input type="text" placeholder="Search companies..." name="search">
+            <input v-model="query" type="text" placeholder="Search companies..." name="search">
         
-        <input style="background-color: blue; color: white;" class="btn btn-outline-success" type="submit" value="Search">
+        <input @click="search(query,role)" style="background-color: blue; color: white;" class="btn btn-outline-success" type="submit" value="Search">
         </div>
     </form>
 
@@ -145,7 +145,7 @@
                 <th>Actions</th>
             </tr>
         </thead>
-        <tbody>
+        <tbody v-if="!apple.length">
             
             <tr v-for="com in comlist" :key="com.id">
                 <td><strong>{{ com.id }}</strong></td>
@@ -203,6 +203,63 @@
             </tr>
             
         </tbody>
+        <tbody v-else>
+            
+            <tr v-for="com in apple" :key="com.id">
+                <td><strong>{{ com.id }}</strong></td>
+                <td>
+                    <div class="s-cell">
+
+                        <div class="stud-deta">
+                            <div class="stud-name">{{com.name}}</div>
+
+                        </div>
+                    </div>
+                </td>
+
+                <td>
+                    <div class="d-info">
+                        
+                        <div class="drive-title-sm">{{ com.drive_count }}</div>
+
+                    </div>
+                </td>
+
+                <td>
+
+                    <span v-if="com.status == 'APPROVED'" class="status-badge status-selected">Approved</span>
+
+                    
+                    <span v-else class="status-badge status-shortlisted">Blocked</span>
+
+                    
+
+                </td>
+                <td>
+                    <div class="t-a">
+                        <a href="#">
+                            
+                            <button v-if="com.status != 'APPROVED'" @click="handleToggleStatus(com)" style="background-color: #28a745; color: white;" class="btn-sm btn-view">
+                                <i class="bi bi-unlock"></i> Unblock
+                            </button>
+                           
+                            <button v-else @click="handleToggleStatus(com)" style="background-color: #dc3545; color: white;" class="btn-sm btn-view">
+                                <i class="bi bi-slash-circle"></i> Block
+                            </button>
+                          
+                        </a>
+                        <a href="#">
+                            <button class="btn-sm btn-view">
+                                <i class="bi bi-eye"></i> View Details
+                            </button>
+                        </a>
+                        
+
+                    </div>
+                </td>
+
+            </tr>
+        </tbody>
     </table>
 </div>
   </div>
@@ -218,11 +275,24 @@ const stats = ref({
 
 const comlist = ref([])
 
+const apple = ref([])
+
+const query = ref('')
+const search = async (role = 'COMPANY') =>{
+    try{
+        const response = await adminAPI.search(query.value,role='COMPANY');
+        apple.value = response.data.data;
+        console.log(response.data.data)
+    }catch(error){
+        console.log(error.message)
+    }
+}
+
+
+
 const fetchACompany = async () => {
     try {
         const response = await adminAPI.getCompanies();
-        
-        // Success: Handle your statistics data
         const serverData = response.data.data;
         stats.value = {
             t_c : serverData.t_c,

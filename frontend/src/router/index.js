@@ -21,16 +21,12 @@ import AvailableDrives from '@/views/student/AvailableDrives.vue'
 import MyApplications from '@/views/student/MyApplications.vue'
 import PlacementHistory from '@/views/student/PlacementHistory.vue'
 import StudentProfile from '@/views/student/StudentProfile.vue'
-import ExportHistory from '@/views/student/ExportHistory.vue'
 
 // Company Views
 import CompanyDashboard from '@/views/company/CompanyDashboard.vue'
-import CompanyProfile from '@/views/company/CompanyProfile.vue'
 import CreateDrive from '@/views/company/CreateDrive.vue'
 import ManageDrives from '@/views/company/ManageDrives.vue'
 import ViewApplicants from '@/views/company/ViewApplicants.vue'
-import ShortlistStudents from '@/views/company/ShortlistStudents.vue'
-import InterviewSchedule from '@/views/company/InterviewSchedule.vue'
 import EditDrive from '@/views/company/editDrive.vue'
 
 // Shared Views
@@ -140,12 +136,7 @@ const router = createRouter({
         component: StudentProfile,
         meta: { role: 'STUDENT', showSidebar: false,showNavbar:true , showFooter:false , showModal:false}
       },
-      {
-        path: '/student/export',
-        name: 'ExportHistory',
-        component: ExportHistory,
-        meta: { role: 'STUDENT', showSidebar: false,showNavbar:true , showFooter:false, showModal:false }
-      },
+      
       
       // Company Routes
       {
@@ -154,12 +145,7 @@ const router = createRouter({
         component: CompanyDashboard,
         meta: { role: 'COMPANY', showSidebar: false ,showModal:true , showNavbar:false , showFooter:false }
       },
-      {
-        path: '/company/profile',
-        name: 'CompanyProfile',
-        component: CompanyProfile,
-        meta: { role: 'COMPANY', showSidebar: false ,showModal:true , showNavbar:false , showFooter:false }
-      },
+      
       {
         path: '/company/drives/create',
         name: 'CreateDrive',
@@ -167,10 +153,10 @@ const router = createRouter({
        meta: { role: 'COMPANY', showSidebar: false ,showModal:true , showNavbar:false , showFooter:false }
       },
       {
-        path: '/company/drives/edit',
+        path: '/company/drives/edit/:id',
         name: 'EditDrive',
         component: EditDrive,
-       meta: { role: 'COMPANY', showSidebar: false ,showModal:true , showNavbar:false , showFooter:false }
+       meta: { requiresAuth:true, role: 'COMPANY', showSidebar: false ,showModal:true , showNavbar:false , showFooter:false }
       },
       {
         path: '/company/drives',
@@ -182,18 +168,6 @@ const router = createRouter({
         path: '/company/applications',
         name: 'ViewApplicants',
         component: ViewApplicants,
-        meta: { role: 'COMPANY', showSidebar: false ,showModal:true , showNavbar:false , showFooter:false }
-      },
-      {
-        path: '/company/drives/:driveId/shortlist',
-        name: 'ShortlistStudents',
-        component: ShortlistStudents,
-        meta: { role: 'COMPANY', showSidebar: false ,showModal:true , showNavbar:false , showFooter:false }
-      },
-      {
-        path: '/company/drives/:driveId/interviews',
-        name: 'InterviewSchedule',
-        component: InterviewSchedule,
         meta: { role: 'COMPANY', showSidebar: false ,showModal:true , showNavbar:false , showFooter:false }
       },
       
@@ -221,21 +195,21 @@ const router = createRouter({
 ]
 
 })
-router.beforeEach((to, from, next) => {
+router.beforeEach((to, from) => {
   const token = localStorage.getItem('user_token');
   const userRole = localStorage.getItem('user_role');
 
   // If the route requires login
   if (to.meta.requiresAuth && !token) {
-    next('/login');
+    return '/login';
   } 
   // If the route requires a specific role
   else if (to.meta.role && to.meta.role !== userRole) {
     alert("Access Denied: You don't have the right permissions.");
-    next('/'); // Send back to home or a 403 page
+    return '/'; // Send back to home or a 403 page
   } 
   else {
-    next();
+    return true;
   }
 });
 

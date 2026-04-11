@@ -124,7 +124,7 @@ def get_students():
         'branch':s.branch,
         'cgpa':s.cgpa,
         "status": s.status,
-        'app_count': len([a for a in apple if apple.student_id == s.id])
+        'app_count': len([a for a in apple if a.student_id == s.id])
     } for s in student]
 
     data = {
@@ -221,16 +221,16 @@ def close_drive(drive_id):
         return error_response(str(e), status_code=500)
 
 @admin_bp.route('/applications', methods=['GET'])
-
+@jwt_required()
 def get_applications():
-    """Get all applications with statistics"""
     try:
         applications = Application.query.all()
         apple = [{
+            'id':app.id,
             'student_id':app.student_id,
             'student_name':Student.query.filter_by(id = app.student_id).first().name,
             'drive_id':app.drive_id,
-            'drive_name':Drive.query.filter_by(id = app.drive_id).first().name,
+            'drive_name':Drive.query.filter_by(id = app.drive_id).first().job_title,
             'status':app.status
         }for app in applications]
         stats = {
@@ -250,28 +250,46 @@ def get_applications():
         return error_response(str(e), status_code=500)
 
 @admin_bp.route('/search', methods=['GET'])
-
+@jwt_required()
 def search():
-    """Search companies and students"""
     try:
-        query = request.args.get('q', '')
-        search_type = request.args.get('type')  # 'company', 'student', or None for both
+        query = request.args.get('q') 
+        role = request.args.get('role')
+        if role == 'COMPANY':
+            company = Company.query.filter_by(name = query).first()
+            drive_count = Drive.query.filter_by(company_id = company.id).count()
+            print(company.name)
+            if company:
+                results = [{
+                    'id':company.id,
+                    'name':company.name,
+                    'hr':company.hr_contact,
+                    'status':company.status,
+                    'website':company.website,
+                    'drive_count':drive_count
+                }]
+                return success_response(results, "Search completed")
+            else:
+                results = [{}]
+                return success_response(results, "Search completed")
+        else:
+            student = Student.query.filter_by(name = query).first()
+            appl = Application.query.filter_by(student_id = student.id).count()
+            print(student.name)
+            if student:
+                results = [{
+                    'id':student.id,
+                    'name':student.name,
+                    'branch':student.branch,
+                    'status':student.status,
+                    'app_count':appl
+                }]
+                print(results)
+                return success_response(results, "Search completed")
+            else:
+                results = [{}]
+                return success_response(results, "Search completed")
         
-        results = {}
-        
-        if not search_type or search_type == 'company':
-            companies = Company.query.filter(
-                Company.company_name.contains(query)
-            ).limit(20).all()
-            results['companies'] = [comp.to_dict() for comp in companies]
-        
-        if not search_type or search_type == 'student':
-            students = Student.query.filter(
-                Student.name.contains(query)
-            ).limit(20).all()
-            results['students'] = [student.to_dict() for student in students]
-        
-        return success_response(results, "Search completed")
         
     except Exception as e:
         return error_response(str(e), status_code=500)

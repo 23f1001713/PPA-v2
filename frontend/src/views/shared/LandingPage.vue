@@ -32,7 +32,7 @@
         <h1>Welcome To Placement Portal</h1>
     </div>
     <div class="content">
-        <RouterLink to="/register">
+        <RouterLink to="/register/student">
             <button>Register</button>
         </RouterLink>
         <RouterLink to="/login"><button>

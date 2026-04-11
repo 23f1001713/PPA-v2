@@ -80,8 +80,15 @@
 <div class="form-group">
     <label for="eligibility" class="form-label fw-bold">Eligibility Criteria</label>
     <!-- Added v-model="formData.eligibility" -->
-    <input v-model="formData.eligibility" type="text" class="form-control" id="eligibility" maxlength="100"
+    <select v-model="formData.eligibility" type="text" class="form-control" id="eligibility" maxlength="100"
         placeholder="e.g., B.Tech CSE, Min 7.5 CGPA" required>
+    <option value="">Select Branch</option>
+                            <option value="">CSE</option>
+                            <option value="">BS</option>
+                            <option value="">ME</option>
+                            <option value="">EE</option>
+                            <option value="">B TECH</option>
+                            <option value="">MCA</option></select>
 </div>
 
 <div class="form-group">

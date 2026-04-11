@@ -286,7 +286,7 @@
                 <input type="file" id="profilePicture" style="display: none;" accept="image/*">
             </div>
 
-            <h3 style="margin-bottom: 5px; color: #2d3436;">Akash Maurya </h3>
+            <h3 style="margin-bottom: 5px; color: #2d3436;">{{data.name}}</h3>
 
 
 
@@ -320,7 +320,7 @@
                 <div class="form-grid">
                     <div class="form-group">
                         <label class="form-label required">Full Name</label>
-                        <input type="text" class="form-control" value="Akash Maurya"
+                        <input type="text" class="form-control" v-model="data.name"
                             placeholder="Enter your full name">
                     </div>
 
@@ -328,12 +328,12 @@
 
                     <div class="form-group">
                         <label class="form-label required">Email </label>
-                        <input type="email" class="form-control" value="emial" placeholder="Enter email">
+                        <input type="email" class="form-control" v-model="data.email" placeholder="Enter email">
                     </div>
 
                     <div class="form-group">
                         <label class="form-label required">Username</label>
-                        <input type="text" class="form-control" value="username"
+                        <input type="text" class="form-control" v-model="data.username"
                             placeholder="Enter phone number">
                     </div>
 
@@ -353,7 +353,7 @@
                     </div>
                     <div class="form-group">
                         <label class="form-label">Resume</label>
-                        <input type="file" class="form-control" value="Upload your resume">
+                        <input  type="file" class="form-control" value="Upload your resume">
                     </div>
                 </div>
             </div>
@@ -391,7 +391,7 @@
 
             <!-- Action Buttons -->
             <div class="form-actions">
-                <button type="button" class="btn btn-primary">
+                <button @click="updateP" type="button" class="btn btn-primary">
                     <i class="bi bi-check-circle"></i> Save Changes
                 </button>
                 <button type="button" class="btn btn-secondary">
@@ -406,8 +406,63 @@
   </div>
 </template>
 
-<script>
-export default {
-  name: 'StudentProfile'
+<script setup>
+
+import { studentAPI } from '@/services/api';
+import { ref,onMounted } from 'vue';
+
+const data = ref({
+    'username':'',
+    'email':'',
+    'branch':'',
+    'name':'',
+    'cgpa':'',
+    'resume':'',
+    'status':''    
+})
+
+const getData = async() =>{
+    try{
+        const response = await studentAPI.getProfile()
+
+        const serverData = response.data.data
+
+        data.value = {
+            username:serverData.user.username,
+            email:serverData.user.email,
+            name:serverData.student.name,
+            branch:serverData.student.branch,
+            cgpa:serverData.student.cgpa,
+            resume:serverData.student.resume,
+            status:serverData.student.status
+        }
+        console.log(serverData)
+        console.log(data)
+    }catch(error){
+        console.log(error.message)
+    }
+    
 }
+
+const updateP = async() =>{
+    try{
+        const payload = {
+      username: data.value.username,
+      email: data.value.email,
+      branch: data.value.branch,
+      name: data.value.name,
+      cgpa: data.value.cgpa,
+      status: data.value.status
+    }
+    const response = await studentAPI.updateProfile(payload);
+        const serverData = response.data
+        alert('Profile updated sucessful!')
+        console.log(serverData)
+    }catch(error){
+        console.log(error)
+    }
+}
+onMounted(() =>{
+    getData()
+})
 </script>

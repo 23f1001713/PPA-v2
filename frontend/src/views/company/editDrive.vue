@@ -66,28 +66,35 @@
     <label for="jobTitle" class="form-label fw-bold">Job Title</label>
     <!-- Added v-model="formData.job_title" -->
     <input v-model="formData.job_title" type="text" class="form-control" id="jobTitle" maxlength="100"
-        placeholder="e.g., Junior Software Engineer" required>
+        placeholder="e.g., Junior Software Engineer" >
 </div>
 
 <div class="form-group">
     <label for="description" class="form-label fw-bold">Job Description</label>
     <!-- Added v-model="formData.description" -->
     <textarea v-model="formData.description" class="form-control" id="description" rows="3" maxlength="200"
-        placeholder="Briefly describe the role..." required></textarea>
+        placeholder="Briefly describe the role..." ></textarea>
     <div class="form-text text-end">Max 200 characters</div>
 </div>
 
 <div class="form-group">
     <label for="eligibility" class="form-label fw-bold">Eligibility Criteria</label>
     <!-- Added v-model="formData.eligibility" -->
-    <input v-model="formData.eligibility" type="text" class="form-control" id="eligibility" maxlength="100"
-        placeholder="e.g., B.Tech CSE, Min 7.5 CGPA" required>
+    <select v-model="formData.eligibility" type="text" class="form-control" id="eligibility" maxlength="100"
+        placeholder="e.g., B.Tech CSE, Min 7.5 CGPA" >
+    <option value="{{ formData.eligibility }}">Select Branch</option>
+                            <option value="">CSE</option>
+                            <option value="">BS</option>
+                            <option value="">ME</option>
+                            <option value="">EE</option>
+                            <option value="">B TECH</option>
+                            <option value="">MCA</option></select>
 </div>
 
 <div class="form-group">
     <label for="deadline" class="form-label fw-bold">Application Deadline</label>
     <!-- Added v-model="formData.deadline" -->
-    <input v-model="formData.deadline" type="datetime-local" class="form-control" id="deadline" required>
+    <input v-model="formData.deadline" type="datetime-local" class="form-control" value="" id="deadline" >
 </div>
 
 
@@ -95,7 +102,7 @@
 
                 <div class="form-group">
                   
-                    <button type="submit" class="btn">Create Drive</button>
+                    <button @click="UpdateData" type="submit" class="btn">Create Drive</button>
                 </div>
 
             </form>
@@ -105,28 +112,49 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref,onMounted } from 'vue';
 import { companyAPI } from '@/services/api';
-
+import { useRoute,useRouter} from 'vue-router';
+const route = useRoute()
+const router = useRouter()
 const formData = ref({
     job_title: '',
     description: '',
     eligibility: '',
     deadline: ''
 });
-const postData = async () => {
+
+const getData = async()=>{
+    try{
+        const driveId = route.params.id
+        const response = await companyAPI.getDrive(driveId)
+        const serverData = response.data.data
+        formData.value = {
+            job_title:serverData.job_title,
+            description:serverData.description,
+            eligibility:serverData.eligibility,
+            deadline:serverData.deadline
+        }
+        console.log(serverData)
+    }catch(error){
+        console.log(error.message)
+    }
+}
+
+
+const UpdateData = async () => {
   try {
-    const response = await companyAPI.createDrive(formData.value);
-    alert('Drive Created Successfully')
-    formData.value = {
-    job_title: '',
-    description: '',
-    eligibility: '',
-    deadline: ''
-};
-    console.log('success',response.data);
+    const driveId = route.params.id
+    const response = await companyAPI.updateDrive(driveId,formData.value);
+
+    alert(response.data.data)
+    router.push({ name: 'ManageDrives' });
   } catch (error) {
     console.error(error);
   }
 };
+
+onMounted(() =>{
+    getData()
+})
 </script>

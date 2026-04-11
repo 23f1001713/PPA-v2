@@ -133,18 +133,18 @@ def manage_drives():
 @jwt_required()
 def close_drive(drive_id):
     try:
+        print(drive_id)
         # Use get_or_404 to handle missing IDs automatically
         drive = PlacementDrives.query.get_or_404(drive_id)
-        
-        # IMPROVED LOGIC: Explicitly toggle based on 'CLOSED'
+
         if drive.status == 'CLOSED':
-            drive.status = 'APPROVED' # Or 'PENDING', depending on your flow
+            drive.status = 'APPROVED'
         else:
-            drive.status = 'CLOSED'
-            
+            drive.status = 'CLOSED' 
+        print(drive.status)
+        db.session.add(drive)
         db.session.commit()
-        
-        # It's best practice to return the new status so the frontend knows what happened
+        print(drive.status)
         return success_response({
             "message": f"Drive is now {drive.status}",
             "new_status": drive.status
@@ -157,34 +157,38 @@ def close_drive(drive_id):
 
 
 @company_bp.route('/drives/<int:drive_id>', methods=['GET', 'PUT', 'DELETE'])
-
+@jwt_required()
 def drive_detail(drive_id):
-    """Get, update or delete a specific drive"""
     try:
         company = get_current_company()
         drive = PlacementDrives.query.get_or_404(drive_id)
         
-        # Check ownership
         if drive.company_id != company.id:
             return error_response("You don't have permission to access this drive", status_code=403)
         
         if request.method == 'GET':
-            return success_response(drive.to_dict())
+            dri = {
+                'job_title':drive.job_title,
+                'description':drive.description,
+                'eligibility':drive.eligibility,
+                'deadline':drive.deadline
+            }
+            return success_response(dri)
         
         if request.method == 'PUT':
             data = request.get_json()
             
             if 'job_title' in data:
                 drive.job_title = data['job_title']
-            if 'job_description' in data:
-                drive.description = data['job_description']
+            if 'description' in data:
+                drive.description = data['description']
             if 'eligibility' in data:
                 drive.eligibility = data['eligibility']
             if 'deadline' in data:
                 drive.deadline = datetime.fromisoformat(data['deadline'].replace('Z', '+00:00'))
             
             db.session.commit()
-            return success_response(drive.to_dict(), "Drive updated successfully")
+            return success_response("Drive updated successfully")
         
         if request.method == 'DELETE':
             db.session.delete(drive)
@@ -198,50 +202,44 @@ def drive_detail(drive_id):
 @company_bp.route('/applications', methods=['GET'])
 @jwt_required()
 def get_applications():
-    """Get all applications for company's drives"""
     try:
         company = get_current_company()
         
-        # Get all applications for company's drives
         applications = db.session.query(Application).join(PlacementDrives).filter(
             PlacementDrives.company_id == company.id
         ).all()
         
-        # Enrich with student and drive details
         app_list = []
+        print(applications)
         for app in applications:
-            student = Student.query.get(app.student_id)
-            drive = PlacementDrives.query.get(app.drive_id)
+            student = Student.query.filter_by(id = app.student_id).first()
+            
+            drive = PlacementDrives.query.filter_by(id = app.drive_id).first()
+            
             stu = {
                 'name':student.name,
                 'branch':student.branch,
                 'cgpa':student.cgpa
             }
+            print(stu)
+                
+
             driv = {
                 'title':drive.job_title,
                 'eligibility':drive.eligibility,
-                'deadline':drive.deadline,
-                'max_a':drive.max_application
+                'deadline':drive.deadline
             }
+            print(driv)
             app_list.append({
                 "application_id": app.id,
                 "student": stu,
                 "drive": driv,
-                "status": app.status,
-                "application_date": app.time
+                "status": app.status
             })
         
-        # Statistics
-        stats = {
-            "total": len(app_list),
-            "pending": sum(1 for a in app_list if a['status'] == 'PENDING'),
-            "shortlisted": sum(1 for a in app_list if a['status'] == 'SHORTLISTED'),
-            "selected": sum(1 for a in app_list if a['status'] == 'SELECTED'),
-            "rejected": sum(1 for a in app_list if a['status'] == 'REJECTED')
-        }
+        
         
         return success_response({
-            "statistics": stats,
             "applications": app_list
         })
         
@@ -249,35 +247,22 @@ def get_applications():
         return error_response(str(e), status_code=500)
 
 @company_bp.route('/applications/<int:application_id>/status', methods=['PUT'])
-
+@jwt_required()
 def update_application_status(application_id):
-    """Update application status (shortlist, select, reject)"""
     try:
-        company = get_current_company()
         application = Application.query.get_or_404(application_id)
         
-        # Verify ownership through drive
-        drive = PlacementDrives.query.get(application.drive_id)
-        if drive.company_id != company.id:
-            return error_response("You don't have permission to update this application", status_code=403)
-        
         data = request.get_json()
-        new_status = data.get('status', '').upper()
-        
-        valid_statuses = ['SHORTLISTED', 'SELECTED', 'REJECTED', 'PENDING']
-        if new_status not in valid_statuses:
-            return error_response(f"Invalid status. Must be one of: {', '.join(valid_statuses)}", status_code=400)
+        print(data)
+        new_status = data.get('status').upper()
+        print(new_status)
         
         application.status = new_status
         
-        if 'interview_schedule' in data:
-            application.interview_schedule = data['interview_schedule']
-        if 'selection_result' in data:
-            application.selection_result = data['selection_result']
         
         db.session.commit()
         
-        return success_response(application.to_dict(), f"Application {new_status.lower()} successfully")
+        return success_response(f"Application {new_status.lower()} successfully")
         
     except Exception as e:
         db.session.rollback()

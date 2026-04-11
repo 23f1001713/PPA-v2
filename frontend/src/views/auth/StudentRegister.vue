@@ -129,8 +129,16 @@
                         </div>
                         <div class="form-group">
                             <label class="form-label required" for="name">Branch :</label>
-                            <input class="form-control" type="text" name="branch" v-model="formData.branch" id="branch" placeholder="branch"
+                            <select class="form-control" type="text" name="branch" v-model="formData.branch" id="branch" placeholder="branch"
                                 required>
+                            <option value="">Select Branch</option>
+                            <option value="">CSE</option>
+                            <option value="">BS</option>
+                            <option value="">ME</option>
+                            <option value="">EE</option>
+                            <option value="">B TECH</option>
+                            <option value="">MCA</option>
+                            </select>
                         </div>
                         <div class="form-group">
                             <label class="form-label required" for="name">cgpa :</label>

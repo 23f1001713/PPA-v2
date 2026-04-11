@@ -55,6 +55,10 @@
         }
         button{
             background-color: #8100D1;
+            border: none;
+            color: white;
+            font-weight: 700;
+            font-size: 14px;
         }
 
 </style>
@@ -74,8 +78,7 @@
                 <li><RouterLink to="/student/drives" class="s_d"><i class="bi bi-briefcase"></i> Drives</RouterLink></li>
                 <li><RouterLink to="/student/applications" class="s_a"><i class="bi bi-file-earmark-text"></i> My
                         Applications</RouterLink></li>
-                <li><RouterLink to="/student/history" class="s_a"><i class="bi bi-file-earmark-text"></i> My
-                        History</RouterLink></li>
+                
                 <li><RouterLink to="/student/profile" class="s_p"><i class="bi bi-person"></i> Profile</RouterLink>
                 </li>
                 <li><RouterLink  class="s_p"><i class="bi bi-box-arrow-right"></i> <button @click="handleLogout">Logout</button></RouterLink>

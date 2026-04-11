@@ -130,7 +130,7 @@ const fetcAppl  = async ()=>{
     try{
         const response = await studentAPI.getApplications();
         const serverData = response.data.data;
-        apple.value = serverData
+        apple.value = serverData.applications;
         console.log(serverData)
     }catch(error){
         console.log(error.message)

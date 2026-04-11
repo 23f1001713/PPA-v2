@@ -210,7 +210,7 @@
                 <div class="app-h">
 
                     <div class="app-i">
-                        <div class="app-n">{{ a.student.name }} </div>
+                        <div class="app-n">{{ a.student.name }} </div> 
                         <div class="app-d">{{a.student.branch}} • {{a.student.cgpa}} </div>
                     </div>
 
@@ -249,26 +249,26 @@
 
                 </div>
                 <div class="drive-actions">
-                    <a href="">
-                        <button class="btn-action btn-view">
+                    <a >
+                        <button @click="handleStatusUpdate(a.application_id, 'SHORTLISTED')" class="btn-action btn-view">
                             <i class="bi bi-people"></i>
                             Shortlist
                         </button>
                     </a>
-                    <a href="">
-                        <button class="btn-action btn-edit">
+                    <a >
+                        <button @click="handleStatusUpdate(a.application_id, 'SELECTED')" class="btn-action btn-edit">
 
                             Select
                         </button>
                     </a>
-                    <a href="">
-                        <button class="btn-action btn-edit">
+                    <a >
+                        <button @click="handleStatusUpdate(a.application_id, 'PENDING')" class="btn-action btn-edit">
 
                             Pending
                         </button>
                     </a>
-                    <a href="">
-                        <button class="btn-action btn-edit">
+                    <a >
+                        <button @click="handleStatusUpdate(a.application_id, 'REJECTED')" class="btn-action btn-edit">
 
                             Reject
                         </button>
@@ -289,11 +289,26 @@ import { companyAPI } from '@/services/api';
 
 const apple = ref([])
 
+const handleStatusUpdate = async (appId, newStatus) => {
+  try {
+    const response = await companyAPI.updateApplicationStatus(appId, newStatus);
+    
+    alert(`Application marked as ${newStatus}`);
+    await fetchApp(); 
+  } catch (error) {
+    console.error("Failed to update status:", error);
+  }
+};
+
+
+
 const fetchApp =async()=>{
     try{
         const response = await companyAPI.getApplications();
         const serverData = response.data.data;
         apple.value = serverData.applications;
+        
+ 
     }catch(error) {
         console.log(error.message)
     }

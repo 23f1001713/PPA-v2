@@ -95,8 +95,8 @@ export const adminAPI = {
   getApplications: () => 
     api.get('/admin/applications'),
   
-  search: (query, type = null) => 
-    api.get('/admin/search', { params: { q: query, type } }),
+  search: (query,role) => 
+    api.get('/admin/search', { params: { q: query ,role:role} }),
   
   getMonthlyReport: () => 
     api.get('/admin/reports/monthly')
@@ -118,8 +118,8 @@ export const studentAPI = {
   getDrives: () => 
     api.get('/student/drives'),
   
-  applyForDrive: (driveId) => 
-    api.post(`/student/drives/${driveId}/apply`),
+  applyForDrive: (data) => 
+    api.post('/student/drives/apply',data),
   
   getApplications: () => 
     api.get('/student/applications'),
@@ -153,6 +153,9 @@ export const companyAPI = {
   closeDrive: (driveId) => 
     api.put(`/company/drives/${driveId}/close`),
   
+  getDrive:(driveID) =>
+    api.get(`/company/drives/${driveID}`),
+
   updateDrive: (driveId, data) => 
     api.put(`/company/drives/${driveId}`, data),
   
