@@ -9,17 +9,17 @@ def start_scheduler():
     scheduler.add_job(
         func=send_daily_reminders.delay,
         trigger="cron",
-        hour=11,
-        minute=5
+        hour=8,
+        minute=25
     )
 
     # Monthly job (1st day)
     scheduler.add_job(
         func=send_monthly_report.delay,
         trigger="cron",
-        day=10,
-        hour=11,
-        minute=8
+        day=12,
+        hour=8,
+        minute=24
     )
 
     scheduler.start()

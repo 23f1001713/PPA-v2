@@ -1,2 +1,5 @@
-message
-No applications found
+student_name,Branch,CGPA,statsu,Drive_name,Application status
+Akash Maurya,BS,8,BLOCKED,this is updated drive second time,REJECTED
+Akash Maurya,BS,8,BLOCKED,drive 2 updateing t,PENDING
+Akash Maurya,BS,8,BLOCKED,drive 3,SHORTLISTED
+Akash Maurya,BS,8,BLOCKED,Server and System Management,APPLIED

@@ -1,0 +1,7 @@
+celery:
+python -m celery -A app.task.celery worker --loglevel=info --pool=solo
+
+redis:
+redis-server
+sudo service redis-server stop
+

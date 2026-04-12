@@ -29,10 +29,7 @@ import ManageDrives from '@/views/company/ManageDrives.vue'
 import ViewApplicants from '@/views/company/ViewApplicants.vue'
 import EditDrive from '@/views/company/editDrive.vue'
 
-// Shared Views
 
-import DriveDetails from '@/views/shared/DriveDetails.vue'
-import SearchResults from '@/views/shared/SearchResults.vue'
 import NotFound from '@/views/shared/NotFound.vue'
 
 
@@ -169,20 +166,6 @@ const router = createRouter({
         name: 'ViewApplicants',
         component: ViewApplicants,
         meta: { role: 'COMPANY', showSidebar: false ,showModal:true , showNavbar:false , showFooter:false }
-      },
-      
-      // Shared Routes
-      {
-        path: '/drives/:driveId',
-        name: 'DriveDetails',
-        component: DriveDetails,
-        meta: { showSidebar: true }
-      },
-      {
-        path: '/search',
-        name: 'SearchResults',
-        component: SearchResults,
-        meta: { showSidebar: true }
       }
     ]
   },
